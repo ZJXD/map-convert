@@ -2,6 +2,7 @@
   <div class="map-page">
     <div v-show="selectedMap === 1" :id="aMapContainerId" class="map-box"></div>
     <div v-show="selectedMap === 2" :id="bMapContainerId" class="map-box"></div>
+    <div v-show="selectedMap === 3" :id="tMapContainerId" class="map-box"></div>
     <el-select v-model="selectedMap" placeholder="请选择底图" size="mini" class="map-select" @change="mapChange">
       <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
       </el-option>
@@ -38,6 +39,7 @@
 <script>
 import aMap from "../components/aMap"
 import bMap from "../components/bMap"
+import tMap from "../components/tMap"
 import Convert from "../utils/transCoords"
 
 export default {
@@ -48,6 +50,8 @@ export default {
       gaodeMap: null,
       bMapContainerId: "baiduMap",
       baiduMap: null,
+      tMapContainerId: "tiandituMap",
+      tiandituMap: null,
       mapList: [
         {
           label: '高德地图',
@@ -56,6 +60,10 @@ export default {
         {
           label: '百度地图',
           value: 2
+        },
+        {
+          label: '天地图',
+          value: 3
         }
       ],
       selectedMap: 2,
@@ -93,6 +101,7 @@ export default {
   },
   mounted() {
     this.baiduMap = new bMap(this.bMapContainerId)
+    this.tiandituMap = new tMap(this.tMapContainerId)
     this.gaodeMap = new aMap(this.aMapContainerId)
   },
   methods: {
