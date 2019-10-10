@@ -4,22 +4,42 @@
 
 import T from 'T'
 
-
 class tMap {
   constructor(container) {
     this.container = container
+    this.T = null
     this.baseMap = null
-    this.tmapApi = T
     this.initMap()
   }
 
+  // 初始化天地图API
+  initT() {
+    const AK = '07d4e04324b413cb0582fa99fe833cd3'
+    const TMapURL = 'http://api.tianditu.gov.cn/api?v=4.0&tk=' + AK
+    return new Promise((resolve, reject) => {
+      window.onload = function () {
+        console.log('地图脚本初始化成功...')
+        // eslint-disable-next-line
+        resolve(T)
+      }
+
+      // 插入script脚本
+      const scriptNode = document.createElement('script')
+      scriptNode.setAttribute('type', 'text/javascript')
+      scriptNode.setAttribute('src', TMapURL)
+      document.body.appendChild(scriptNode)
+    })
+  }
+
   async initMap() {
+    // this.T = await this.initT()
     // 初始化地图
     this.baseMap = new T.Map(this.container, {
       projection: 'EPSG:4326'
     })
     let point = new T.LngLat(120.189705, 30.309652)
     this.baseMap.centerAndZoom(point, 12)
+    this.baseMap.checkResize()
   }
 
   /**

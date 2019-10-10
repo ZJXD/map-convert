@@ -52,8 +52,8 @@ module.exports = {
   configureWebpack: {
     externals: {
       AMap: "AMap", // 高德地图配置
-      "BMap": "BMap", // 百度地图配置
-      "T": "T" // 天地图
+      T: "T", // 天地图
+      "BMap": "BMap" // 百度地图配置
     }
   }
 }

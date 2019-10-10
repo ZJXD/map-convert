@@ -66,7 +66,7 @@ export default {
           value: 3
         }
       ],
-      selectedMap: 2,
+      selectedMap: 3,
       isGetCoord: false,
       X: null,
       Y: null,
@@ -232,6 +232,7 @@ export default {
     top: 10px;
     right: 18%;
     width: 150px;
+    z-index: 999;
   }
 
   .map-page-right {
