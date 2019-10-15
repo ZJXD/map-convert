@@ -88,6 +88,14 @@ export default {
         {
           label: "高德转WGS",
           value: 4
+        },
+        {
+          label: "百度转WGS",
+          value: 5
+        },
+        {
+          label: "WGS转百度",
+          value: 6
         }
       ],
       selectedConvert: null,
@@ -124,12 +132,14 @@ export default {
             e => {
               this.X = e.lnglat.getLng()
               this.Y = e.lnglat.getLat()
-              this.XY = e.lnglat.getLng() + "," + e.lnglat.getLat()
+              this.XY = this.X + "," + this.Y
             }
           )
         } else if (this.selectedMap === 2) {
           this.baiduMap.baseMap.setDefaultCursor("crosshair")
           this.baiduMap.baseMap.addEventListener("click", this.baiduGetCoord)
+        } else if (this.selectedMap === 3) {
+          this.tiandituMap.baseMap.addEventListener("click", this.tiandituGetCoord)
         }
       } else {
         if (this.selectedMap === 1) {
@@ -138,7 +148,8 @@ export default {
         } else if (this.selectedMap === 2) {
           this.baiduMap.baseMap.setDefaultCursor("default")
           this.baiduMap.baseMap.removeEventListener("click", this.baiduGetCoord)
-
+        } else if (this.selectedMap === 3) {
+          this.tiandituMap.baseMap.removeEventListener("click", this.tiandituGetCoord)
         }
       }
     },
@@ -147,7 +158,14 @@ export default {
     baiduGetCoord(e) {
       this.X = e.point.lng
       this.Y = e.point.lat
-      this.XY = e.point.lng + "," + e.point.lat
+      this.XY = this.X + "," + this.Y
+    },
+
+    // 天地图拾取坐标事件
+    tiandituGetCoord(e) {
+      this.X = e.lnglat.getLng()
+      this.Y = e.lnglat.getLat()
+      this.XY = this.X + "," + this.Y
     },
 
     // 转换坐标
@@ -160,11 +178,21 @@ export default {
         return
       }
 
+      if (!this.inputX || !this.inputY) {
+        this.$message({
+          message: "请输入坐标",
+          type: 'warning'
+        })
+        return
+      }
+
       if (!this.markerOffset) {
         this.markerOffset = this.gaodeMap.initPixel(25, 0)
       }
       const x = Number(this.inputX)
       const y = Number(this.inputY)
+
+      // 输入点标注
       if (this.oldMarker) {
         this.oldMarker.setPosition([x, y])
       } else {
@@ -177,6 +205,8 @@ export default {
           content: "输入点"
         })
       }
+
+      // 转换坐标
       let temp = []
       switch (this.selectedConvert) {
         case 1:
@@ -191,11 +221,19 @@ export default {
         case 4:
           temp = Convert.GCJ02toWGS84(x, y)
           break
+        case 5:
+          temp = Convert.BD09toWGS84(x, y)
+          break
+        case 6:
+          temp = Convert.WGS84toBD09(x, y)
+          break
 
         default:
           break
       }
       this.outputXY = temp.join(",")
+
+      // 输出点标注
       if (this.newMarker) {
         this.newMarker.setPosition(temp)
       } else {
