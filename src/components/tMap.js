@@ -38,7 +38,7 @@ class tMap {
       projection: 'EPSG:4326'
     })
     let point = new T.LngLat(120.189705, 30.309652)
-    this.baseMap.centerAndZoom(point, 12)
+    this.baseMap.centerAndZoom(point, 14)
     this.baseMap.checkResize()
   }
 

@@ -13,13 +13,14 @@ class bMap {
     this.initMap()
   }
 
-  async initMap() {
+  initMap() {
     // 初始化地图
     this.baseMap = new BMap.Map(this.container)
-    let point = new BMap.Point(120.189705, 30.309652)
-    // this.baseMap.centerAndZoom('杭州')
-    this.baseMap.centerAndZoom(point, 15)
-    this.baseMap.enableScrollWheelZoom()
+    this.baseMap.centerAndZoom(new BMap.Point(120.20085967, 30.31299727), 15)
+    // this.baseMap.centerAndZoom('杭州市')
+    // let point = new BMap.Point(120.20085967, 30.31299727)
+    // this.baseMap.centerAndZoom(point, 15)
+    this.baseMap.enableScrollWheelZoom(true)
   }
 
   /**

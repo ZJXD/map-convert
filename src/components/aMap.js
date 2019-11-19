@@ -15,7 +15,7 @@ class aMap {
   async initMap() {
     // 初始化地图
     this.baseMap = new AMap.Map(this.container, {
-      center: [120.18312, 30.304009],
+      center: [120.19430026, 30.30726322],
       zoom: 14,
       zooms: [12, 20],
       resizeEnable: true,
