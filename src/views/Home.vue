@@ -32,6 +32,14 @@
         <label class="text">OutputXY:{{ outputXY }}</label>
         <button class="button" @click="convertCoord">转换坐标</button>
       </div>
+      <div class="oper-item">
+        <h6>画线</h6>
+        <button :class="['button', isGetPolyline === true ? 'active' : '']" size="mini" @click="getPolylineBtn">
+          开始画线
+        </button>
+        <label class="text">线坐标：</label>
+        <el-input :rows="5" v-model="polylineDataStr" type="textarea" />
+      </div>
     </div>
   </div>
 </template>
@@ -104,7 +112,10 @@ export default {
       outputXY: null,
       oldMarker: null,
       newMarker: null,
-      markerOffset: null
+      markerOffset: null,
+      polylineDataStr: '',
+      polylineData: [],
+      isGetPolyline: false
     }
   },
   mounted() {
@@ -116,6 +127,7 @@ export default {
     // 切换地图时，调取拾取坐标按钮事件，重置对应地图拾取状态
     mapChange() {
       this.getCoordBtn(false)
+      this.getPolylineBtn(false)
     },
 
     // 拾取坐标按钮事件
@@ -126,30 +138,26 @@ export default {
       if (this.isGetCoord) {
         if (this.selectedMap === 1) {
           this.gaodeMap.baseMap.setDefaultCursor("crosshair")
-          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
-            this.gaodeMap.baseMap,
-            "click",
-            e => {
-              this.X = e.lnglat.getLng()
-              this.Y = e.lnglat.getLat()
-              this.XY = this.X + "," + this.Y
-            }
-          )
+          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(this.gaodeMap.baseMap, "click", this.TDTAndGgaodeGetCoord)
         } else if (this.selectedMap === 2) {
           this.baiduMap.baseMap.setDefaultCursor("crosshair")
           this.baiduMap.baseMap.addEventListener("click", this.baiduGetCoord)
         } else if (this.selectedMap === 3) {
-          this.tiandituMap.baseMap.addEventListener("click", this.tiandituGetCoord)
+          let tiandituBox = document.getElementById(this.tMapContainerId)
+          tiandituBox.style.cursor = 'crosshair'
+          this.tiandituMap.baseMap.addEventListener("click", this.TDTAndGgaodeGetCoord)
         }
       } else {
         if (this.selectedMap === 1) {
-          this.gaodeMap.baseMap.setDefaultCursor("default")
+          this.gaodeMap.baseMap.setDefaultCursor("grab")
           this.mapClickEvent && this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
         } else if (this.selectedMap === 2) {
-          this.baiduMap.baseMap.setDefaultCursor("default")
+          this.baiduMap.baseMap.setDefaultCursor("grab")
           this.baiduMap.baseMap.removeEventListener("click", this.baiduGetCoord)
         } else if (this.selectedMap === 3) {
-          this.tiandituMap.baseMap.removeEventListener("click", this.tiandituGetCoord)
+          let tiandituBox = document.getElementById(this.tMapContainerId)
+          tiandituBox.style.cursor = 'grab'
+          this.tiandituMap.baseMap.removeEventListener("click", this.TDTAndGgaodeGetCoord)
         }
       }
     },
@@ -161,8 +169,8 @@ export default {
       this.XY = this.X + "," + this.Y
     },
 
-    // 天地图拾取坐标事件
-    tiandituGetCoord(e) {
+    // 天地图和高德地图拾取坐标事件
+    TDTAndGgaodeGetCoord(e) {
       this.X = e.lnglat.getLng()
       this.Y = e.lnglat.getLat()
       this.XY = this.X + "," + this.Y
@@ -246,6 +254,52 @@ export default {
           content: "输出点"
         })
       }
+    },
+
+    // 画线
+    getPolylineBtn(changeBtn = true) {
+      if (changeBtn) {
+        this.isGetPolyline = !this.isGetPolyline
+      }
+
+      if (this.isGetPolyline) {
+        this.polylineDataStr = ''
+        this.polylineData = []
+
+        if (this.selectedMap === 1) {
+          this.gaodeMap.baseMap.setDefaultCursor("crosshair")
+          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(this.gaodeMap.baseMap, "click", this.getPolylineData)
+        } else if (this.selectedMap === 2) {
+          this.baiduMap.baseMap.setDefaultCursor("crosshair")
+          this.baiduMap.baseMap.addEventListener("click", this.getBaiduPolylineData)
+        } else if (this.selectedMap === 3) {
+          let tiandituBox = document.getElementById(this.tMapContainerId)
+          tiandituBox.style.cursor = 'crosshair'
+          this.tiandituMap.baseMap.addEventListener("click", this.getPolylineData)
+        }
+      } else {
+        if (this.selectedMap === 1) {
+          this.gaodeMap.baseMap.setDefaultCursor("grab")
+          this.mapClickEvent && this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
+        } else if (this.selectedMap === 2) {
+          this.baiduMap.baseMap.setDefaultCursor("grab")
+          this.baiduMap.baseMap.removeEventListener("click", this.getBaiduPolylineData)
+        } else if (this.selectedMap === 3) {
+          let tiandituBox = document.getElementById(this.tMapContainerId)
+          tiandituBox.style.cursor = 'grab'
+          this.tiandituMap.baseMap.removeEventListener("click", this.getPolylineData)
+        }
+      }
+    },
+    // 天地图和高德地图，画线点击事件，拼接坐标
+    getPolylineData(e) {
+      this.polylineData.push({ longitude: e.lnglat.getLng(), latitude: e.lnglat.getLat() })
+      this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
+    },
+    // 百度地图，画线点击事件，拼接坐标
+    getBaiduPolylineData(e) {
+      this.polylineData.push({ longitude: e.point.lng, latitude: e.point.lat })
+      this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
     }
   }
 }
@@ -259,6 +313,10 @@ export default {
   flex-direction: row;
   font-size: 12px;
   position: relative;
+
+  button {
+    cursor: pointer;
+  }
 
   .map-box {
     width: 85%;
@@ -276,7 +334,7 @@ export default {
   .map-page-right {
     height: 100%;
     width: 15%;
-    padding: 20px 10px 30px 10px;
+    padding: 20px;
 
     h4 {
       font-size: 18px;
@@ -289,6 +347,11 @@ export default {
       .text {
         display: block;
         margin: 10px 0;
+      }
+
+      .text-area {
+        width: 100%;
+        height: 100px;
       }
     }
 

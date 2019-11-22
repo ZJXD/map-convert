@@ -2,7 +2,7 @@
 高德地图
  */
 
-import AMap from "AMap"
+import AMap from 'AMap'
 
 class aMap {
   constructor(container) {
@@ -19,7 +19,8 @@ class aMap {
       zoom: 14,
       zooms: [12, 20],
       resizeEnable: true,
-      expandZoomRange: true
+      expandZoomRange: true,
+      defaultCursor: 'grab',
     })
   }
 
@@ -30,7 +31,7 @@ class aMap {
   addMarker(options) {
     return new AMap.Marker({
       map: this.baseMap,
-      ...options
+      ...options,
     })
   }
 

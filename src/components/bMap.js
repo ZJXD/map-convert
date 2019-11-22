@@ -4,7 +4,6 @@
 
 import BMap from 'BMap'
 
-
 class bMap {
   constructor(container) {
     this.container = container
@@ -21,6 +20,7 @@ class bMap {
     // let point = new BMap.Point(120.20085967, 30.31299727)
     // this.baseMap.centerAndZoom(point, 15)
     this.baseMap.enableScrollWheelZoom(true)
+    this.baseMap.setDefaultCursor('grab')
   }
 
   /**
