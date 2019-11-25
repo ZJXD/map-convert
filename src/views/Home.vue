@@ -1,8 +1,8 @@
 <template>
   <div class="map-page">
-    <div v-show="selectedMap === 1" :id="aMapContainerId" class="map-box"></div>
-    <div v-show="selectedMap === 2" :id="bMapContainerId" class="map-box"></div>
-    <div v-show="selectedMap === 3" :id="tMapContainerId" class="map-box"></div>
+    <div :id="aMapContainerId" class="map-box"></div>
+    <div :id="bMapContainerId" class="map-box"></div>
+    <div :id="tMapContainerId" class="map-box" style="display:block;"></div>
     <el-select v-model="selectedMap" placeholder="请选择底图" size="mini" class="map-select" @change="mapChange">
       <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
       </el-option>
@@ -75,6 +75,9 @@ export default {
         }
       ],
       selectedMap: 3,
+      aMapBox: null,
+      bMapBox: null,
+      tMapBox: null,
       isGetCoord: false,
       X: null,
       Y: null,
@@ -119,13 +122,42 @@ export default {
     }
   },
   mounted() {
-    this.baiduMap = new bMap(this.bMapContainerId)
+    if (this.selectedMap === 2) {
+      this.baiduMap = new bMap(this.bMapContainerId)
+    }
     this.tiandituMap = new tMap(this.tMapContainerId)
     this.gaodeMap = new aMap(this.aMapContainerId)
+    this.aMapBox = document.getElementById(this.aMapContainerId)
+    this.bMapBox = document.getElementById(this.bMapContainerId)
+    this.tMapBox = document.getElementById(this.tMapContainerId)
   },
   methods: {
     // 切换地图时，调取拾取坐标按钮事件，重置对应地图拾取状态
-    mapChange() {
+    mapChange(value) {
+      // 为了在百度地图的容器第一次显示时再初始化，做了几个地图的容器显示的调整，用了原生 JS 控制
+      switch (value) {
+        case 1:
+          this.aMapBox.style.display = 'block'
+          this.bMapBox.style.display = 'none'
+          this.tMapBox.style.display = 'none'
+          break
+        case 2:
+          this.aMapBox.style.display = 'none'
+          this.bMapBox.style.display = 'block'
+          this.tMapBox.style.display = 'none'
+          break
+        case 3:
+          this.aMapBox.style.display = 'none'
+          this.bMapBox.style.display = 'none'
+          this.tMapBox.style.display = 'block'
+          break
+
+        default:
+          break
+      }
+      if (!this.baiduMap) {
+        this.baiduMap = new bMap(this.bMapContainerId)
+      }
       this.getCoordBtn(false)
       this.getPolylineBtn(false)
     },
@@ -321,6 +353,7 @@ export default {
   .map-box {
     width: 85%;
     height: 100%;
+    display: none;
   }
 
   .map-select {
