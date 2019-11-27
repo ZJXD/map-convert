@@ -3,6 +3,7 @@
     <div :id="aMapContainerId" class="map-box"></div>
     <div :id="bMapContainerId" class="map-box"></div>
     <div :id="tMapContainerId" class="map-box" style="display:block;"></div>
+    <div :id="l7MapContainerId" class="map-box"></div>
     <el-select v-model="selectedMap" placeholder="请选择底图" size="mini" class="map-select" @change="mapChange">
       <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
       </el-option>
@@ -45,39 +46,47 @@
 </template>
 
 <script>
-import aMap from "../components/aMap"
-import bMap from "../components/bMap"
-import tMap from "../components/tMap"
-import Convert from "../utils/transCoords"
+import aMap from '../components/aMap'
+import bMap from '../components/bMap'
+import tMap from '../components/tMap'
+import l7Map from '../components/l7Map'
+import Convert from '../utils/transCoords'
 
 export default {
   components: {},
   data() {
     return {
-      aMapContainerId: "gaodeMap",
+      aMapContainerId: 'gaodeMap',
       gaodeMap: null,
-      bMapContainerId: "baiduMap",
+      l7MapContainerId: 'l7Map',
+      l7Map: null,
+      bMapContainerId: 'baiduMap',
       baiduMap: null,
-      tMapContainerId: "tiandituMap",
+      tMapContainerId: 'tiandituMap',
       tiandituMap: null,
       mapList: [
         {
           label: '高德地图',
-          value: 1
+          value: 1,
         },
         {
           label: '百度地图',
-          value: 2
+          value: 2,
         },
         {
           label: '天地图',
-          value: 3
-        }
+          value: 3,
+        },
+        {
+          label: 'AntV L7',
+          value: 4,
+        },
       ],
       selectedMap: 3,
       aMapBox: null,
       bMapBox: null,
       tMapBox: null,
+      l7MapBox: null,
       isGetCoord: false,
       X: null,
       Y: null,
@@ -85,29 +94,29 @@ export default {
       mapClickEvent: null,
       convertOptions: [
         {
-          label: "WGS转高德",
-          value: 1
+          label: 'WGS转高德',
+          value: 1,
         },
         {
-          label: "百度转高德",
-          value: 2
+          label: '百度转高德',
+          value: 2,
         },
         {
-          label: "高德转百度",
-          value: 3
+          label: '高德转百度',
+          value: 3,
         },
         {
-          label: "高德转WGS",
-          value: 4
+          label: '高德转WGS',
+          value: 4,
         },
         {
-          label: "百度转WGS",
-          value: 5
+          label: '百度转WGS',
+          value: 5,
         },
         {
-          label: "WGS转百度",
-          value: 6
-        }
+          label: 'WGS转百度',
+          value: 6,
+        },
       ],
       selectedConvert: null,
       inputX: null,
@@ -118,7 +127,7 @@ export default {
       markerOffset: null,
       polylineDataStr: '',
       polylineData: [],
-      isGetPolyline: false
+      isGetPolyline: false,
     }
   },
   mounted() {
@@ -127,9 +136,11 @@ export default {
     }
     this.tiandituMap = new tMap(this.tMapContainerId)
     this.gaodeMap = new aMap(this.aMapContainerId)
+    this.l7Map = new l7Map(this.l7MapContainerId)
     this.aMapBox = document.getElementById(this.aMapContainerId)
     this.bMapBox = document.getElementById(this.bMapContainerId)
     this.tMapBox = document.getElementById(this.tMapContainerId)
+    this.l7MapBox = document.getElementById(this.l7MapContainerId)
   },
   methods: {
     // 切换地图时，调取拾取坐标按钮事件，重置对应地图拾取状态
@@ -140,22 +151,32 @@ export default {
           this.aMapBox.style.display = 'block'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'none'
+          this.l7MapBox.style.display = 'none'
           break
         case 2:
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'block'
           this.tMapBox.style.display = 'none'
+          this.l7MapBox.style.display = 'none'
           break
         case 3:
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'block'
+          this.l7MapBox.style.display = 'none'
+          break
+
+        case 4:
+          this.aMapBox.style.display = 'none'
+          this.bMapBox.style.display = 'none'
+          this.tMapBox.style.display = 'none'
+          this.l7MapBox.style.display = 'block'
           break
 
         default:
           break
       }
-      if (!this.baiduMap) {
+      if (!this.baiduMap && this.selectedMap === 2) {
         this.baiduMap = new bMap(this.bMapContainerId)
       }
       this.getCoordBtn(false)
@@ -169,27 +190,38 @@ export default {
       }
       if (this.isGetCoord) {
         if (this.selectedMap === 1) {
-          this.gaodeMap.baseMap.setDefaultCursor("crosshair")
-          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(this.gaodeMap.baseMap, "click", this.TDTAndGgaodeGetCoord)
+          this.gaodeMap.baseMap.setDefaultCursor('crosshair')
+          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
+            this.gaodeMap.baseMap,
+            'click',
+            this.TDTAndGgaodeGetCoord,
+          )
         } else if (this.selectedMap === 2) {
-          this.baiduMap.baseMap.setDefaultCursor("crosshair")
-          this.baiduMap.baseMap.addEventListener("click", this.baiduGetCoord)
+          this.baiduMap.baseMap.setDefaultCursor('crosshair')
+          this.baiduMap.baseMap.addEventListener('click', this.baiduGetCoord)
         } else if (this.selectedMap === 3) {
           let tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'crosshair'
-          this.tiandituMap.baseMap.addEventListener("click", this.TDTAndGgaodeGetCoord)
+          this.tiandituMap.baseMap.addEventListener(
+            'click',
+            this.TDTAndGgaodeGetCoord,
+          )
         }
       } else {
         if (this.selectedMap === 1) {
-          this.gaodeMap.baseMap.setDefaultCursor("grab")
-          this.mapClickEvent && this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
+          this.gaodeMap.baseMap.setDefaultCursor('grab')
+          this.mapClickEvent &&
+            this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
         } else if (this.selectedMap === 2) {
-          this.baiduMap.baseMap.setDefaultCursor("grab")
-          this.baiduMap.baseMap.removeEventListener("click", this.baiduGetCoord)
+          this.baiduMap.baseMap.setDefaultCursor('grab')
+          this.baiduMap.baseMap.removeEventListener('click', this.baiduGetCoord)
         } else if (this.selectedMap === 3) {
           let tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'grab'
-          this.tiandituMap.baseMap.removeEventListener("click", this.TDTAndGgaodeGetCoord)
+          this.tiandituMap.baseMap.removeEventListener(
+            'click',
+            this.TDTAndGgaodeGetCoord,
+          )
         }
       }
     },
@@ -198,30 +230,30 @@ export default {
     baiduGetCoord(e) {
       this.X = e.point.lng
       this.Y = e.point.lat
-      this.XY = this.X + "," + this.Y
+      this.XY = this.X + ',' + this.Y
     },
 
     // 天地图和高德地图拾取坐标事件
     TDTAndGgaodeGetCoord(e) {
       this.X = e.lnglat.getLng()
       this.Y = e.lnglat.getLat()
-      this.XY = this.X + "," + this.Y
+      this.XY = this.X + ',' + this.Y
     },
 
     // 转换坐标
     convertCoord() {
       if (!this.selectedConvert) {
         this.$message({
-          message: "请选择转换方式",
-          type: "warning"
+          message: '请选择转换方式',
+          type: 'warning',
         })
         return
       }
 
       if (!this.inputX || !this.inputY) {
         this.$message({
-          message: "请输入坐标",
-          type: 'warning'
+          message: '请输入坐标',
+          type: 'warning',
         })
         return
       }
@@ -237,12 +269,12 @@ export default {
         this.oldMarker.setPosition([x, y])
       } else {
         this.oldMarker = this.gaodeMap.addMarker({
-          anchor: "bottom-center",
-          position: [x, y]
+          anchor: 'bottom-center',
+          position: [x, y],
         })
         this.oldMarker.setLabel({
           offset: this.markerOffset,
-          content: "输入点"
+          content: '输入点',
         })
       }
 
@@ -271,19 +303,19 @@ export default {
         default:
           break
       }
-      this.outputXY = temp.join(",")
+      this.outputXY = temp.join(',')
 
       // 输出点标注
       if (this.newMarker) {
         this.newMarker.setPosition(temp)
       } else {
         this.newMarker = this.gaodeMap.addMarker({
-          anchor: "bottom-center",
-          position: temp
+          anchor: 'bottom-center',
+          position: temp,
         })
         this.newMarker.setLabel({
           offset: this.markerOffset,
-          content: "输出点"
+          content: '输出点',
         })
       }
     },
@@ -299,41 +331,61 @@ export default {
         this.polylineData = []
 
         if (this.selectedMap === 1) {
-          this.gaodeMap.baseMap.setDefaultCursor("crosshair")
-          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(this.gaodeMap.baseMap, "click", this.getPolylineData)
+          this.gaodeMap.baseMap.setDefaultCursor('crosshair')
+          this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
+            this.gaodeMap.baseMap,
+            'click',
+            this.getPolylineData,
+          )
         } else if (this.selectedMap === 2) {
-          this.baiduMap.baseMap.setDefaultCursor("crosshair")
-          this.baiduMap.baseMap.addEventListener("click", this.getBaiduPolylineData)
+          this.baiduMap.baseMap.setDefaultCursor('crosshair')
+          this.baiduMap.baseMap.addEventListener(
+            'click',
+            this.getBaiduPolylineData,
+          )
         } else if (this.selectedMap === 3) {
           let tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'crosshair'
-          this.tiandituMap.baseMap.addEventListener("click", this.getPolylineData)
+          this.tiandituMap.baseMap.addEventListener(
+            'click',
+            this.getPolylineData,
+          )
         }
       } else {
         if (this.selectedMap === 1) {
-          this.gaodeMap.baseMap.setDefaultCursor("grab")
-          this.mapClickEvent && this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
+          this.gaodeMap.baseMap.setDefaultCursor('grab')
+          this.mapClickEvent &&
+            this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
         } else if (this.selectedMap === 2) {
-          this.baiduMap.baseMap.setDefaultCursor("grab")
-          this.baiduMap.baseMap.removeEventListener("click", this.getBaiduPolylineData)
+          this.baiduMap.baseMap.setDefaultCursor('grab')
+          this.baiduMap.baseMap.removeEventListener(
+            'click',
+            this.getBaiduPolylineData,
+          )
         } else if (this.selectedMap === 3) {
           let tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'grab'
-          this.tiandituMap.baseMap.removeEventListener("click", this.getPolylineData)
+          this.tiandituMap.baseMap.removeEventListener(
+            'click',
+            this.getPolylineData,
+          )
         }
       }
     },
     // 天地图和高德地图，画线点击事件，拼接坐标
     getPolylineData(e) {
-      this.polylineData.push({ longitude: e.lnglat.getLng(), latitude: e.lnglat.getLat() })
+      this.polylineData.push({
+        longitude: e.lnglat.getLng(),
+        latitude: e.lnglat.getLat(),
+      })
       this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
     },
     // 百度地图，画线点击事件，拼接坐标
     getBaiduPolylineData(e) {
       this.polylineData.push({ longitude: e.point.lng, latitude: e.point.lat })
       this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
-    }
-  }
+    },
+  },
 }
 </script>
 
