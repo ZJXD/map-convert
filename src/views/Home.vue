@@ -3,7 +3,7 @@
     <div :id="aMapContainerId" class="map-box"></div>
     <div :id="bMapContainerId" class="map-box"></div>
     <div :id="tMapContainerId" class="map-box" style="display:block;"></div>
-    <div :id="l7MapContainerId" class="map-box"></div>
+    <!-- <div :id="l7MapContainerId" class="map-box"></div> -->
     <el-select v-model="selectedMap" placeholder="请选择底图" size="mini" class="map-select" @change="mapChange">
       <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
       </el-option>
@@ -49,7 +49,7 @@
 import aMap from '../components/aMap'
 import bMap from '../components/bMap'
 import tMap from '../components/tMap'
-import l7Map from '../components/l7Map'
+// import l7Map from '../components/l7Map'
 import Convert from '../utils/transCoords'
 
 export default {
@@ -77,10 +77,10 @@ export default {
           label: '天地图',
           value: 3,
         },
-        {
-          label: 'AntV L7',
-          value: 4,
-        },
+        // {
+        //   label: 'AntV L7',
+        //   value: 4,
+        // },
       ],
       selectedMap: 3,
       aMapBox: null,
@@ -136,11 +136,11 @@ export default {
     }
     this.tiandituMap = new tMap(this.tMapContainerId)
     this.gaodeMap = new aMap(this.aMapContainerId)
-    this.l7Map = new l7Map(this.l7MapContainerId)
+    // this.l7Map = new l7Map(this.l7MapContainerId)
     this.aMapBox = document.getElementById(this.aMapContainerId)
     this.bMapBox = document.getElementById(this.bMapContainerId)
     this.tMapBox = document.getElementById(this.tMapContainerId)
-    this.l7MapBox = document.getElementById(this.l7MapContainerId)
+    // this.l7MapBox = document.getElementById(this.l7MapContainerId)
   },
   methods: {
     // 切换地图时，调取拾取坐标按钮事件，重置对应地图拾取状态
@@ -151,26 +151,26 @@ export default {
           this.aMapBox.style.display = 'block'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'none'
-          this.l7MapBox.style.display = 'none'
+          // this.l7MapBox.style.display = 'none'
           break
         case 2:
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'block'
           this.tMapBox.style.display = 'none'
-          this.l7MapBox.style.display = 'none'
+          // this.l7MapBox.style.display = 'none'
           break
         case 3:
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'block'
-          this.l7MapBox.style.display = 'none'
+          // this.l7MapBox.style.display = 'none'
           break
 
         case 4:
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'none'
-          this.l7MapBox.style.display = 'block'
+          // this.l7MapBox.style.display = 'block'
           break
 
         default:
