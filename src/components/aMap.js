@@ -4,12 +4,21 @@
 
 import AMap from 'AMap'
 
+const POLYLINE_STYLE = {
+  strokeColor: '#3366FF',
+  strokeOpacity: 1,
+  strokeWeight: 6,
+  strokeStyle: 'solid'
+}
+
 class aMap {
   constructor(container) {
     this.container = container
     this.baseMap = null
     this.amapApi = AMap
+    this.mouseTool = null
     this.initMap()
+    this.initMouseTool()
   }
 
   async initMap() {
@@ -20,8 +29,15 @@ class aMap {
       zooms: [12, 20],
       resizeEnable: true,
       expandZoomRange: true,
-      defaultCursor: 'grab',
+      defaultCursor: 'grab'
     })
+  }
+
+  /**
+   * 初始化 MouseTool 工具类
+   */
+  initMouseTool() {
+    this.mouseTool = new AMap.MouseTool(this.baseMap)
   }
 
   /**
@@ -31,7 +47,7 @@ class aMap {
   addMarker(options) {
     return new AMap.Marker({
       map: this.baseMap,
-      ...options,
+      ...options
     })
   }
 
@@ -42,6 +58,26 @@ class aMap {
    */
   initPixel(x, y) {
     return new AMap.Pixel(x, y)
+  }
+
+  /**
+   * 画线
+   * @param {Object} options 参数
+   */
+  drawLine(options) {
+    return new AMap.Polyline({
+      map: this.baseMap,
+      ...options
+    })
+  }
+
+  /**
+   * 用 MouseTool 画线
+   * @param {Object} options 参数
+   */
+  drawPolyline(options) {
+    const tempStyle = options || POLYLINE_STYLE
+    this.mouseTool.polyline(tempStyle)
   }
 }
 

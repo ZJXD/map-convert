@@ -8,6 +8,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@turf/helpers": "^6.1.4",
+    "@turf/line-intersect": "^6.0.2",
+    "@turf/line-slice": "^5.1.5",
+    "@turf/line-split": "^5.1.5",
     "core-js": "^2.6.5",
     "element-ui": "^2.4.5",
     "vue": "^2.6.10",

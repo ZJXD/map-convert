@@ -12,7 +12,7 @@
       <h4>操作区</h4>
       <div class="oper-item">
         <h6>坐标拾取</h6>
-        <button :class="['button', isGetCoord === true ? 'active' : '']" size="mini" @click="getCoordBtn">
+        <button :class="['button', isGetCoord === true ? 'active' : '']" @click="getCoordBtn">
           拾取坐标
         </button>
         <label class="text">X:{{ X }}</label>
@@ -35,11 +35,23 @@
       </div>
       <div class="oper-item">
         <h6>画线</h6>
-        <button :class="['button', isGetPolyline === true ? 'active' : '']" size="mini" @click="getPolylineBtn">
+        <button :class="['button', isGetPolyline === true ? 'active' : '']" @click="getPolylineBtn">
           开始画线
         </button>
         <label class="text">线坐标：</label>
         <el-input :rows="5" v-model="polylineDataStr" type="textarea" />
+      </div>
+      <div class="oper-item">
+        <h6>切割线</h6>
+        <button :class="['button', isDrawPolyline === true ? 'active' : '']" @click="drawPolyline">
+          开始画线
+        </button>
+        <button :class="['button', isSliceline === true ? 'active' : '']" @click="sliceLine">
+          交点线
+        </button>
+        <button :class="['button', isSplitLine === true ? 'active' : '']" @click="splitLine">
+          切割线
+        </button>
       </div>
     </div>
   </div>
@@ -51,6 +63,11 @@ import bMap from '../components/bMap'
 import tMap from '../components/tMap'
 // import l7Map from '../components/l7Map'
 import Convert from '../utils/transCoords'
+import lineIntersect from '@turf/line-intersect'
+import lineSlice from '@turf/line-slice'
+import { lineString } from '@turf/helpers'
+import lineSplit from '@turf/line-split'
+import { randomColor2 } from '../utils/color'
 
 export default {
   components: {},
@@ -67,16 +84,16 @@ export default {
       mapList: [
         {
           label: '高德地图',
-          value: 1,
+          value: 1
         },
         {
           label: '百度地图',
-          value: 2,
+          value: 2
         },
         {
           label: '天地图',
-          value: 3,
-        },
+          value: 3
+        }
         // {
         //   label: 'AntV L7',
         //   value: 4,
@@ -95,28 +112,28 @@ export default {
       convertOptions: [
         {
           label: 'WGS转高德',
-          value: 1,
+          value: 1
         },
         {
           label: '百度转高德',
-          value: 2,
+          value: 2
         },
         {
           label: '高德转百度',
-          value: 3,
+          value: 3
         },
         {
           label: '高德转WGS',
-          value: 4,
+          value: 4
         },
         {
           label: '百度转WGS',
-          value: 5,
+          value: 5
         },
         {
           label: 'WGS转百度',
-          value: 6,
-        },
+          value: 6
+        }
       ],
       selectedConvert: null,
       inputX: null,
@@ -127,7 +144,16 @@ export default {
       markerOffset: null,
       polylineDataStr: '',
       polylineData: [],
+      mouseToolEvent: null,
       isGetPolyline: false,
+      isDrawPolyline: false,
+      aMapLine: null,
+      isSliceline: false,
+      aMapSliceLine: null,
+      intersectPointMarker: [],
+      isSplitLine: false,
+      aMapSplitLine: null,
+      splitLines: []
     }
   },
   mounted() {
@@ -145,7 +171,7 @@ export default {
   methods: {
     // 切换地图时，调取拾取坐标按钮事件，重置对应地图拾取状态
     mapChange(value) {
-      // 为了在百度地图的容器第一次显示时再初始化，做了几个地图的容器显示的调整，用了原生 JS 控制
+      // 为了使百度地图的容器第一次显示时再初始化，做了几个地图的容器显示的调整，用了原生 JS 控制
       switch (value) {
         case 1:
           this.aMapBox.style.display = 'block'
@@ -194,7 +220,7 @@ export default {
           this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
             this.gaodeMap.baseMap,
             'click',
-            this.TDTAndGgaodeGetCoord,
+            this.TDTAndGgaodeGetCoord
           )
         } else if (this.selectedMap === 2) {
           this.baiduMap.baseMap.setDefaultCursor('crosshair')
@@ -204,7 +230,7 @@ export default {
           tiandituBox.style.cursor = 'crosshair'
           this.tiandituMap.baseMap.addEventListener(
             'click',
-            this.TDTAndGgaodeGetCoord,
+            this.TDTAndGgaodeGetCoord
           )
         }
       } else {
@@ -220,7 +246,7 @@ export default {
           tiandituBox.style.cursor = 'grab'
           this.tiandituMap.baseMap.removeEventListener(
             'click',
-            this.TDTAndGgaodeGetCoord,
+            this.TDTAndGgaodeGetCoord
           )
         }
       }
@@ -245,7 +271,7 @@ export default {
       if (!this.selectedConvert) {
         this.$message({
           message: '请选择转换方式',
-          type: 'warning',
+          type: 'warning'
         })
         return
       }
@@ -253,7 +279,7 @@ export default {
       if (!this.inputX || !this.inputY) {
         this.$message({
           message: '请输入坐标',
-          type: 'warning',
+          type: 'warning'
         })
         return
       }
@@ -270,11 +296,11 @@ export default {
       } else {
         this.oldMarker = this.gaodeMap.addMarker({
           anchor: 'bottom-center',
-          position: [x, y],
+          position: [x, y]
         })
         this.oldMarker.setLabel({
           offset: this.markerOffset,
-          content: '输入点',
+          content: '输入点'
         })
       }
 
@@ -311,11 +337,11 @@ export default {
       } else {
         this.newMarker = this.gaodeMap.addMarker({
           anchor: 'bottom-center',
-          position: temp,
+          position: temp
         })
         this.newMarker.setLabel({
           offset: this.markerOffset,
-          content: '输出点',
+          content: '输出点'
         })
       }
     },
@@ -335,20 +361,20 @@ export default {
           this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
             this.gaodeMap.baseMap,
             'click',
-            this.getPolylineData,
+            this.getPolylineData
           )
         } else if (this.selectedMap === 2) {
           this.baiduMap.baseMap.setDefaultCursor('crosshair')
           this.baiduMap.baseMap.addEventListener(
             'click',
-            this.getBaiduPolylineData,
+            this.getBaiduPolylineData
           )
         } else if (this.selectedMap === 3) {
           let tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'crosshair'
           this.tiandituMap.baseMap.addEventListener(
             'click',
-            this.getPolylineData,
+            this.getPolylineData
           )
         }
       } else {
@@ -360,14 +386,14 @@ export default {
           this.baiduMap.baseMap.setDefaultCursor('grab')
           this.baiduMap.baseMap.removeEventListener(
             'click',
-            this.getBaiduPolylineData,
+            this.getBaiduPolylineData
           )
         } else if (this.selectedMap === 3) {
           let tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'grab'
           this.tiandituMap.baseMap.removeEventListener(
             'click',
-            this.getPolylineData,
+            this.getPolylineData
           )
         }
       }
@@ -376,7 +402,7 @@ export default {
     getPolylineData(e) {
       this.polylineData.push({
         longitude: e.lnglat.getLng(),
-        latitude: e.lnglat.getLat(),
+        latitude: e.lnglat.getLat()
       })
       this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
     },
@@ -385,7 +411,151 @@ export default {
       this.polylineData.push({ longitude: e.point.lng, latitude: e.point.lat })
       this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
     },
-  },
+
+    // 高德地图画线
+    drawPolyline() {
+      this.isDrawPolyline = !this.isDrawPolyline
+      if (this.gaodeMap && this.isDrawPolyline) {
+        if (this.aMapLine) {
+          this.gaodeMap.baseMap.remove(this.aMapLine)
+          this.aMapLine = null
+        }
+        this.gaodeMap.baseMap.setDefaultCursor('crosshair')
+        this.gaodeMap.drawPolyline()
+        this.mouseToolEvent &&
+          this.gaodeMap.amapApi.event.removeListener(this.mouseToolEvent)
+        this.mouseToolEvent = this.gaodeMap.amapApi.event.addListener(
+          this.gaodeMap.mouseTool,
+          'draw',
+          event => {
+            this.aMapLine = event.obj
+            this.gaodeMap.baseMap.setDefaultCursor('pointer')
+            this.gaodeMap.mouseTool.close()
+            this.mouseToolEvent &&
+              this.gaodeMap.amapApi.event.removeListener(this.mouseToolEvent)
+          }
+        )
+        // this.gaodeMap.mouseTool.on('draw', event => {
+        //   this.aMapLine = event.obj
+        //   this.gaodeMap.baseMap.setDefaultCursor('pointer')
+        //   this.gaodeMap.mouseTool.close()
+        // })
+      }
+    },
+
+    // 交点线
+    sliceLine() {
+      this.isSliceline = !this.isSliceline
+      if (this.gaodeMap && this.isSliceline) {
+        if (this.aMapSliceLine) {
+          this.gaodeMap.baseMap.remove(this.aMapSliceLine)
+          this.aMapSliceLine = null
+          this.gaodeMap.baseMap.remove(this.intersectPointMarker)
+          this.intersectPointMarker = []
+        }
+        this.gaodeMap.baseMap.setDefaultCursor('crosshair')
+        this.gaodeMap.drawPolyline({ strokeColor: '#33FF66', strokeWeight: 4 })
+
+        this.mouseToolEvent &&
+          this.gaodeMap.amapApi.event.removeListener(this.mouseToolEvent)
+        this.mouseToolEvent = this.gaodeMap.amapApi.event.addListener(
+          this.gaodeMap.mouseTool,
+          'draw',
+          event => {
+            this.aMapSliceLine = event.obj
+            this.gaodeMap.baseMap.setDefaultCursor('pointer')
+            this.gaodeMap.mouseTool.close()
+
+            // 进行切割
+            if (this.aMapLine) {
+              let line1 = [],
+                line2 = []
+              this.aMapLine.getPath().map(item => {
+                line1.push([item.lng, item.lat])
+              })
+              this.aMapSliceLine.getPath().map(item => {
+                line2.push([item.lng, item.lat])
+              })
+
+              let intersectPoint = lineIntersect(
+                lineString(line1),
+                lineString(line2)
+              )
+              // debugger
+              // console.log('intersectPoint', intersectPoint)
+              intersectPoint.features &&
+                intersectPoint.features.map(item => {
+                  this.intersectPointMarker.push(
+                    this.gaodeMap.addMarker({
+                      position: item.geometry.coordinates
+                    })
+                  )
+                })
+            }
+            this.mouseToolEvent &&
+              this.gaodeMap.amapApi.event.removeListener(this.mouseToolEvent)
+          }
+        )
+      }
+    },
+
+    // 切割线
+    splitLine() {
+      this.isSplitLine = !this.isSplitLine
+      if (this.gaodeMap && this.isSplitLine) {
+        if (this.aMapSplitLine) {
+          this.gaodeMap.baseMap.remove(this.aMapSplitLine)
+          this.aMapSplitLine = null
+          this.gaodeMap.baseMap.remove(this.splitLines)
+          this.splitLines = []
+        }
+        this.gaodeMap.baseMap.setDefaultCursor('crosshair')
+        this.gaodeMap.drawPolyline({ strokeColor: '#dd3333', strokeWeight: 4 })
+
+        this.mouseToolEvent &&
+          this.gaodeMap.amapApi.event.removeListener(this.mouseToolEvent)
+        this.mouseToolEvent = this.gaodeMap.amapApi.event.addListener(
+          this.gaodeMap.mouseTool,
+          'draw',
+          event => {
+            this.aMapSplitLine = event.obj
+            this.gaodeMap.baseMap.setDefaultCursor('pointer')
+            this.gaodeMap.mouseTool.close()
+
+            // 进行切割
+            if (this.aMapLine) {
+              let line1 = [], line2 = []
+              this.aMapLine.getPath().map(item => {
+                line1.push([item.lng, item.lat])
+              })
+              this.aMapSplitLine.getPath().map(item => {
+                line2.push([item.lng, item.lat])
+              })
+
+              let split = lineSplit(
+                lineString(line1),
+                lineString(line2)
+              )
+              // debugger
+              // console.log('split', split)
+              split.features &&
+                split.features.map(item => {
+                  this.splitLines.push(
+                    this.gaodeMap.drawLine({
+                      path: item.geometry.coordinates,
+                      strokeColor: randomColor2(),
+                      strokeWeight: 3,
+                    })
+                  )
+                })
+            }
+            this.mouseToolEvent &&
+              this.gaodeMap.amapApi.event.removeListener(this.mouseToolEvent)
+          }
+        )
+      }
+    }
+  }
 }
 </script>
 
@@ -444,6 +614,7 @@ export default {
       font-size: 14px;
       text-align: left;
       margin-block-end: 10px;
+      color: #00e;
     }
 
     .button {
@@ -452,6 +623,7 @@ export default {
       background-color: white;
       border: 1px solid;
       border-radius: 3px;
+      margin: 0 10px 10px 0;
 
       &:focus {
         outline: none;
