@@ -587,9 +587,28 @@ export default {
   }
 
   .map-page-right {
+    overflow-y: auto;
     height: 100%;
     width: 15%;
     padding: 20px;
+    box-sizing: border-box;
+
+    // 设置滚动条样式
+    // 血槽宽度（分别对应水平和垂直的）
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    // 拖动条
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+    }
+    // 背景槽
+    &::-webkit-scrollbar-track {
+      background-color: #ddd;
+      border-radius: 6px;
+    }
 
     h4 {
       font-size: 18px;

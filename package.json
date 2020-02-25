@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@turf/buffer": "^5.1.5",
     "@turf/helpers": "^6.1.4",
     "@turf/line-intersect": "^6.0.2",
     "@turf/line-slice": "^5.1.5",
