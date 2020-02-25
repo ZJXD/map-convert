@@ -122,7 +122,8 @@ function wgs84tobd09(lng, lat) {
 }
 
 function transformlat(lng, lat) {
-  var ret = -100.0 +
+  var ret =
+    -100.0 +
     2.0 * lng +
     3.0 * lat +
     0.2 * lat * lat +
@@ -159,7 +160,7 @@ function transformlng(lng, lat) {
     3.0
   ret +=
     ((150.0 * Math.sin((lng / 12.0) * PI) +
-        300.0 * Math.sin((lng / 30.0) * PI)) *
+      300.0 * Math.sin((lng / 30.0) * PI)) *
       2.0) /
     3.0
   return ret

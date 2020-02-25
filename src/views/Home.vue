@@ -443,7 +443,7 @@ export default {
       }
     },
 
-    // 交点线
+    // 画交点线，计算交点
     sliceLine() {
       this.isSliceline = !this.isSliceline
       if (this.gaodeMap && this.isSliceline) {
@@ -466,7 +466,7 @@ export default {
             this.gaodeMap.baseMap.setDefaultCursor('pointer')
             this.gaodeMap.mouseTool.close()
 
-            // 进行切割
+            // 进行交点计算
             if (this.aMapLine) {
               let line1 = [],
                 line2 = []
