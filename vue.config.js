@@ -49,7 +49,8 @@ module.exports = {
   // }
   // #endregion
   devServer: {
-    port: 57103 // 端口号配置
+    port: 57103, // 端口号配置
+    open: true // 自动在浏览器打开
   },
   configureWebpack: {
     externals: {
