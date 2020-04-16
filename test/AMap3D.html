@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>高德地图3D</title>
+
+  <script type="text/javascript"
+    src="https://webapi.amap.com/maps?v=1.4.14&key=24e27b17847a56fc66cfc5ee32c03219&plugin=AMap.ControlBar"></script>
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font: 12px/16px Verdana, Helvetica, Arial, sans-serif;
+      width: 100%;
+      height: 100%
+    }
+
+    .container {
+      height: 100%
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="container" style="width:100%; height:100%;resize:both;"></div>
+
+  <script language="javascript">
+    var map;
+
+    function mapInit() {
+      map = new AMap.Map('container', {
+        resizeEnable: true,
+        rotateEnable: true,
+        pitchEnable: true,
+        zoom: 17,
+        pitch: 80,
+        rotation: -15,
+        viewMode: '3D', //开启3D视图,默认为关闭
+        buildingAnimation: true, //楼块出现是否带动画
+
+        expandZoomRange: true,
+        zooms: [3, 20],
+        center: [120.254026, 30.315334]
+      });
+
+      map.addControl(new AMap.ControlBar({
+        showZoomBar: false,
+        showControlButton: true,
+        position: {
+          right: '10px',
+          top: '10px'
+        }
+      }))
+    }
+    mapInit()
+
+  </script>
+</body>
+
+</html>
