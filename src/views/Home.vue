@@ -9,9 +9,9 @@
       </el-option>
     </el-select>
     <div class="map-page-right">
-      <h4>操作区</h4>
+      <h2>操作区</h2>
       <div class="oper-item">
-        <h6>坐标拾取</h6>
+        <h3>坐标拾取</h3>
         <button :class="['button', isGetCoord === true ? 'active' : '']" @click="getCoordBtn">
           拾取坐标
         </button>
@@ -20,21 +20,30 @@
         <label class="text">XY:{{ XY }}</label>
       </div>
       <div class="oper-item">
-        <h6>坐标转换</h6>
-        <span>选取转换方式：</span>
-        <el-select v-model="selectedConvert" placeholder="请选择转换方式" size="mini">
-          <el-option v-for="item in convertOptions" :key="item.value" :label="item.label" :value="item.value">
-          </el-option>
-        </el-select>
-        <span>X:</span>
-        <el-input v-model="inputX" placeholder="请输入X坐标" size="mini"></el-input>
-        <span>Y:</span>
-        <el-input v-model="inputY" placeholder="请输入Y坐标" size="mini"></el-input>
-        <label class="text">OutputXY:{{ outputXY }}</label>
-        <button class="button" @click="convertCoord">转换坐标</button>
+        <h3>坐标转换</h3>
+        <el-form label-width="70px">
+          <el-form-item label="转换方式">
+            <el-select v-model="selectedConvert" placeholder="请选择转换方式" size="mini">
+              <el-option v-for="item in convertOptions" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="坐标X">
+            <el-input v-model="inputX" placeholder="请输入X坐标" size="mini"></el-input>
+          </el-form-item>
+          <el-form-item label="坐标Y">
+            <el-input v-model="inputY" placeholder="请输入Y坐标" size="mini"></el-input>
+          </el-form-item>
+          <el-form-item label="OutputXY">
+            <label class="text">{{ outputXY }}</label>
+          </el-form-item>
+          <el-form-item>
+            <button class="button" @click="convertCoord">转换坐标</button>
+          </el-form-item>
+        </el-form>
       </div>
-      <div class="oper-item">
-        <h6>画线</h6>
+      <div class="oper-item" style="padding-bottom:10px;">
+        <h3>画线</h3>
         <button :class="['button', isGetPolyline === true ? 'active' : '']" @click="getPolylineBtn">
           开始画线
         </button>
@@ -42,7 +51,7 @@
         <el-input :rows="5" v-model="polylineDataStr" type="textarea" />
       </div>
       <div class="oper-item">
-        <h6>切割线</h6>
+        <h3>切割线</h3>
         <button :class="['button', isDrawPolyline === true ? 'active' : '']" @click="drawPolyline">
           开始画线
         </button>
@@ -84,16 +93,16 @@ export default {
       mapList: [
         {
           label: '高德地图',
-          value: 1
+          value: 1,
         },
         {
           label: '百度地图',
-          value: 2
+          value: 2,
         },
         {
           label: '天地图',
-          value: 3
-        }
+          value: 3,
+        },
         // {
         //   label: 'AntV L7',
         //   value: 4,
@@ -112,28 +121,28 @@ export default {
       convertOptions: [
         {
           label: 'WGS转高德',
-          value: 1
+          value: 1,
         },
         {
           label: '百度转高德',
-          value: 2
+          value: 2,
         },
         {
           label: '高德转百度',
-          value: 3
+          value: 3,
         },
         {
           label: '高德转WGS',
-          value: 4
+          value: 4,
         },
         {
           label: '百度转WGS',
-          value: 5
+          value: 5,
         },
         {
           label: 'WGS转百度',
-          value: 6
-        }
+          value: 6,
+        },
       ],
       selectedConvert: null,
       inputX: null,
@@ -153,7 +162,7 @@ export default {
       intersectPointMarker: [],
       isSplitLine: false,
       aMapSplitLine: null,
-      splitLines: []
+      splitLines: [],
     }
   },
   mounted() {
@@ -271,7 +280,7 @@ export default {
       if (!this.selectedConvert) {
         this.$message({
           message: '请选择转换方式',
-          type: 'warning'
+          type: 'warning',
         })
         return
       }
@@ -279,7 +288,7 @@ export default {
       if (!this.inputX || !this.inputY) {
         this.$message({
           message: '请输入坐标',
-          type: 'warning'
+          type: 'warning',
         })
         return
       }
@@ -296,11 +305,11 @@ export default {
       } else {
         this.oldMarker = this.gaodeMap.addMarker({
           anchor: 'bottom-center',
-          position: [x, y]
+          position: [x, y],
         })
         this.oldMarker.setLabel({
           offset: this.markerOffset,
-          content: '输入点'
+          content: '输入点',
         })
       }
 
@@ -337,11 +346,11 @@ export default {
       } else {
         this.newMarker = this.gaodeMap.addMarker({
           anchor: 'bottom-center',
-          position: temp
+          position: temp,
         })
         this.newMarker.setLabel({
           offset: this.markerOffset,
-          content: '输出点'
+          content: '输出点',
         })
       }
     },
@@ -402,7 +411,7 @@ export default {
     getPolylineData(e) {
       this.polylineData.push({
         longitude: e.lnglat.getLng(),
-        latitude: e.lnglat.getLat()
+        latitude: e.lnglat.getLat(),
       })
       this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
     },
@@ -427,7 +436,7 @@ export default {
         this.mouseToolEvent = this.gaodeMap.amapApi.event.addListener(
           this.gaodeMap.mouseTool,
           'draw',
-          event => {
+          (event) => {
             this.aMapLine = event.obj
             this.gaodeMap.baseMap.setDefaultCursor('pointer')
             this.gaodeMap.mouseTool.close()
@@ -461,7 +470,7 @@ export default {
         this.mouseToolEvent = this.gaodeMap.amapApi.event.addListener(
           this.gaodeMap.mouseTool,
           'draw',
-          event => {
+          (event) => {
             this.aMapSliceLine = event.obj
             this.gaodeMap.baseMap.setDefaultCursor('pointer')
             this.gaodeMap.mouseTool.close()
@@ -470,10 +479,10 @@ export default {
             if (this.aMapLine) {
               let line1 = [],
                 line2 = []
-              this.aMapLine.getPath().map(item => {
+              this.aMapLine.getPath().map((item) => {
                 line1.push([item.lng, item.lat])
               })
-              this.aMapSliceLine.getPath().map(item => {
+              this.aMapSliceLine.getPath().map((item) => {
                 line2.push([item.lng, item.lat])
               })
 
@@ -484,10 +493,10 @@ export default {
               // debugger
               // console.log('intersectPoint', intersectPoint)
               intersectPoint.features &&
-                intersectPoint.features.map(item => {
+                intersectPoint.features.map((item) => {
                   this.intersectPointMarker.push(
                     this.gaodeMap.addMarker({
-                      position: item.geometry.coordinates
+                      position: item.geometry.coordinates,
                     })
                   )
                 })
@@ -517,29 +526,27 @@ export default {
         this.mouseToolEvent = this.gaodeMap.amapApi.event.addListener(
           this.gaodeMap.mouseTool,
           'draw',
-          event => {
+          (event) => {
             this.aMapSplitLine = event.obj
             this.gaodeMap.baseMap.setDefaultCursor('pointer')
             this.gaodeMap.mouseTool.close()
 
             // 进行切割
             if (this.aMapLine) {
-              let line1 = [], line2 = []
-              this.aMapLine.getPath().map(item => {
+              let line1 = [],
+                line2 = []
+              this.aMapLine.getPath().map((item) => {
                 line1.push([item.lng, item.lat])
               })
-              this.aMapSplitLine.getPath().map(item => {
+              this.aMapSplitLine.getPath().map((item) => {
                 line2.push([item.lng, item.lat])
               })
 
-              let split = lineSplit(
-                lineString(line1),
-                lineString(line2)
-              )
+              let split = lineSplit(lineString(line1), lineString(line2))
               // debugger
               // console.log('split', split)
               split.features &&
-                split.features.map(item => {
+                split.features.map((item) => {
                   this.splitLines.push(
                     this.gaodeMap.drawLine({
                       path: item.geometry.coordinates,
@@ -554,8 +561,8 @@ export default {
           }
         )
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -590,7 +597,7 @@ export default {
     overflow-y: auto;
     height: 100%;
     width: 15%;
-    padding: 20px;
+    padding: 0 20px 20px;
     box-sizing: border-box;
 
     // 设置滚动条样式
@@ -610,13 +617,9 @@ export default {
       border-radius: 6px;
     }
 
-    h4 {
-      font-size: 18px;
-      margin-block-start: 0;
-    }
-
     .oper-item {
       text-align: left;
+      border-bottom: 1px dashed #e66565;
 
       .text {
         display: block;
@@ -629,7 +632,7 @@ export default {
       }
     }
 
-    h6 {
+    h3 {
       font-size: 14px;
       text-align: left;
       margin-block-end: 10px;
@@ -660,8 +663,8 @@ export default {
 
 <style lang="scss">
 .map-page {
-  .el-input--mini .el-input__inner {
-    margin: 10px 0;
+  .el-form-item {
+    margin-bottom: 5px;
   }
 }
 </style>

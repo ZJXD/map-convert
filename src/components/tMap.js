@@ -17,7 +17,7 @@ class tMap {
     const AK = '07d4e04324b413cb0582fa99fe833cd3'
     const TMapURL = 'http://api.tianditu.gov.cn/api?v=4.0&tk=' + AK
     return new Promise((resolve, reject) => {
-      window.onload = function () {
+      window.onload = function() {
         console.log('地图脚本初始化成功...')
         // eslint-disable-next-line
         resolve(T)
@@ -35,7 +35,7 @@ class tMap {
     // this.T = await this.initT()
     // 初始化地图
     this.baseMap = new T.Map(this.container, {
-      projection: 'EPSG:4326'
+      // projection: 'EPSG:4326'
     })
     let point = new T.LngLat(120.189705, 30.309652)
     this.baseMap.centerAndZoom(point, 14)

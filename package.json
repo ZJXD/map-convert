@@ -14,7 +14,7 @@
     "@turf/line-slice": "^5.1.5",
     "@turf/line-split": "^5.1.5",
     "core-js": "^2.6.5",
-    "element-ui": "^2.4.5",
+    "element-ui": "^2.13.1",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"
