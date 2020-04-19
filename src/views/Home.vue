@@ -338,7 +338,7 @@ export default {
         default:
           break
       }
-      this.outputXY = temp.join(',')
+      this.outputXY = temp[0].toFixed(6) + ',' + temp[1].toFixed(6)
 
       // 输出点标注
       if (this.newMarker) {
