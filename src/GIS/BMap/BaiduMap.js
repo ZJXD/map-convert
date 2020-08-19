@@ -4,7 +4,7 @@
 
 import BMap from 'BMap'
 
-class bMap {
+class BaiduMap {
   constructor(container) {
     this.container = container
     this.baseMap = null
@@ -44,4 +44,4 @@ class bMap {
   // }
 }
 
-export default bMap
+export default BaiduMap

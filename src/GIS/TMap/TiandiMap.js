@@ -4,7 +4,7 @@
 
 import T from 'T'
 
-class tMap {
+class TiandiMap {
   constructor(container) {
     this.container = container
     this.T = null
@@ -37,7 +37,7 @@ class tMap {
     this.baseMap = new T.Map(this.container, {
       // projection: 'EPSG:4326'
     })
-    let point = new T.LngLat(120.189705, 30.309652)
+    const point = new T.LngLat(120.189705, 30.309652)
     this.baseMap.centerAndZoom(point, 14)
     this.baseMap.checkResize()
   }
@@ -63,4 +63,4 @@ class tMap {
   // }
 }
 
-export default tMap
+export default TiandiMap

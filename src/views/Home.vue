@@ -1,12 +1,11 @@
 <template>
   <div class="map-page">
-    <div :id="aMapContainerId" class="map-box"></div>
-    <div :id="bMapContainerId" class="map-box"></div>
-    <div :id="tMapContainerId" class="map-box" style="display:block;"></div>
+    <div :id="aMapContainerId" class="map-box" />
+    <div :id="bMapContainerId" class="map-box" />
+    <div :id="tMapContainerId" class="map-box" style="display:block;" />
     <!-- <div :id="l7MapContainerId" class="map-box"></div> -->
     <el-select v-model="selectedMap" placeholder="请选择底图" size="mini" class="map-select" @change="mapChange">
-      <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
-      </el-option>
+      <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
     <div class="map-page-right">
       <h2>操作区</h2>
@@ -24,21 +23,22 @@
         <el-form label-width="70px">
           <el-form-item label="转换方式">
             <el-select v-model="selectedConvert" placeholder="请选择转换方式" size="mini">
-              <el-option v-for="item in convertOptions" :key="item.value" :label="item.label" :value="item.value">
-              </el-option>
+              <el-option v-for="item in convertOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
           <el-form-item label="坐标X">
-            <el-input v-model="inputX" placeholder="请输入X坐标" size="mini"></el-input>
+            <el-input v-model="inputX" placeholder="请输入X坐标" size="mini" />
           </el-form-item>
           <el-form-item label="坐标Y">
-            <el-input v-model="inputY" placeholder="请输入Y坐标" size="mini"></el-input>
+            <el-input v-model="inputY" placeholder="请输入Y坐标" size="mini" />
           </el-form-item>
           <el-form-item label="OutputXY">
             <label class="text">{{ outputXY }}</label>
           </el-form-item>
           <el-form-item>
-            <button class="button" @click="convertCoord">转换坐标</button>
+            <button class="button" @click="convertCoord">
+              转换坐标
+            </button>
           </el-form-item>
         </el-form>
       </div>
@@ -48,7 +48,7 @@
           开始画线
         </button>
         <label class="text">线坐标：</label>
-        <el-input :rows="5" v-model="polylineDataStr" type="textarea" />
+        <el-input v-model="polylineDataStr" :rows="5" type="textarea" />
       </div>
       <div class="oper-item">
         <h3>切割线</h3>
@@ -67,13 +67,13 @@
 </template>
 
 <script>
-import aMap from '../components/aMap'
-import bMap from '../components/bMap'
-import tMap from '../components/tMap'
+import BaiduMap from '../GIS/BMap/BaiduMap'
+import GaodeMap from '../GIS/AMap/GaodeMap'
+import TiandiMap from '../GIS/TMap/TiandiMap'
 // import l7Map from '../components/l7Map'
 import Convert from '../utils/transCoords'
 import lineIntersect from '@turf/line-intersect'
-import lineSlice from '@turf/line-slice'
+// import lineSlice from '@turf/line-slice'
 import { lineString } from '@turf/helpers'
 import lineSplit from '@turf/line-split'
 import { randomColor2 } from '../utils/color'
@@ -93,16 +93,16 @@ export default {
       mapList: [
         {
           label: '高德地图',
-          value: 1,
+          value: 1
         },
         {
           label: '百度地图',
-          value: 2,
+          value: 2
         },
         {
           label: '天地图',
-          value: 3,
-        },
+          value: 3
+        }
         // {
         //   label: 'AntV L7',
         //   value: 4,
@@ -121,28 +121,28 @@ export default {
       convertOptions: [
         {
           label: 'WGS转高德',
-          value: 1,
+          value: 1
         },
         {
           label: '百度转高德',
-          value: 2,
+          value: 2
         },
         {
           label: '高德转百度',
-          value: 3,
+          value: 3
         },
         {
           label: '高德转WGS',
-          value: 4,
+          value: 4
         },
         {
           label: '百度转WGS',
-          value: 5,
+          value: 5
         },
         {
           label: 'WGS转百度',
-          value: 6,
-        },
+          value: 6
+        }
       ],
       selectedConvert: null,
       inputX: null,
@@ -162,15 +162,15 @@ export default {
       intersectPointMarker: [],
       isSplitLine: false,
       aMapSplitLine: null,
-      splitLines: [],
+      splitLines: []
     }
   },
   mounted() {
     if (this.selectedMap === 2) {
-      this.baiduMap = new bMap(this.bMapContainerId)
+      this.baiduMap = new BaiduMap(this.bMapContainerId)
     }
-    this.tiandituMap = new tMap(this.tMapContainerId)
-    this.gaodeMap = new aMap(this.aMapContainerId)
+    this.tiandituMap = new TiandiMap(this.tMapContainerId)
+    this.gaodeMap = new GaodeMap(this.aMapContainerId)
     // this.l7Map = new l7Map(this.l7MapContainerId)
     this.aMapBox = document.getElementById(this.aMapContainerId)
     this.bMapBox = document.getElementById(this.bMapContainerId)
@@ -212,7 +212,7 @@ export default {
           break
       }
       if (!this.baiduMap && this.selectedMap === 2) {
-        this.baiduMap = new bMap(this.bMapContainerId)
+        this.baiduMap = new BaiduMap(this.bMapContainerId)
       }
       this.getCoordBtn(false)
       this.getPolylineBtn(false)
@@ -235,7 +235,7 @@ export default {
           this.baiduMap.baseMap.setDefaultCursor('crosshair')
           this.baiduMap.baseMap.addEventListener('click', this.baiduGetCoord)
         } else if (this.selectedMap === 3) {
-          let tiandituBox = document.getElementById(this.tMapContainerId)
+          const tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'crosshair'
           this.tiandituMap.baseMap.addEventListener(
             'click',
@@ -251,7 +251,7 @@ export default {
           this.baiduMap.baseMap.setDefaultCursor('grab')
           this.baiduMap.baseMap.removeEventListener('click', this.baiduGetCoord)
         } else if (this.selectedMap === 3) {
-          let tiandituBox = document.getElementById(this.tMapContainerId)
+          const tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'grab'
           this.tiandituMap.baseMap.removeEventListener(
             'click',
@@ -280,7 +280,7 @@ export default {
       if (!this.selectedConvert) {
         this.$message({
           message: '请选择转换方式',
-          type: 'warning',
+          type: 'warning'
         })
         return
       }
@@ -288,7 +288,7 @@ export default {
       if (!this.inputX || !this.inputY) {
         this.$message({
           message: '请输入坐标',
-          type: 'warning',
+          type: 'warning'
         })
         return
       }
@@ -305,11 +305,11 @@ export default {
       } else {
         this.oldMarker = this.gaodeMap.addMarker({
           anchor: 'bottom-center',
-          position: [x, y],
+          position: [x, y]
         })
         this.oldMarker.setLabel({
           offset: this.markerOffset,
-          content: '输入点',
+          content: '输入点'
         })
       }
 
@@ -346,11 +346,11 @@ export default {
       } else {
         this.newMarker = this.gaodeMap.addMarker({
           anchor: 'bottom-center',
-          position: temp,
+          position: temp
         })
         this.newMarker.setLabel({
           offset: this.markerOffset,
-          content: '输出点',
+          content: '输出点'
         })
       }
     },
@@ -379,7 +379,7 @@ export default {
             this.getBaiduPolylineData
           )
         } else if (this.selectedMap === 3) {
-          let tiandituBox = document.getElementById(this.tMapContainerId)
+          const tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'crosshair'
           this.tiandituMap.baseMap.addEventListener(
             'click',
@@ -398,7 +398,7 @@ export default {
             this.getBaiduPolylineData
           )
         } else if (this.selectedMap === 3) {
-          let tiandituBox = document.getElementById(this.tMapContainerId)
+          const tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'grab'
           this.tiandituMap.baseMap.removeEventListener(
             'click',
@@ -411,7 +411,7 @@ export default {
     getPolylineData(e) {
       this.polylineData.push({
         longitude: e.lnglat.getLng(),
-        latitude: e.lnglat.getLat(),
+        latitude: e.lnglat.getLat()
       })
       this.polylineDataStr = JSON.stringify(this.polylineData, null, 4)
     },
@@ -477,8 +477,8 @@ export default {
 
             // 进行交点计算
             if (this.aMapLine) {
-              let line1 = [],
-                line2 = []
+              const line1 = []
+              const line2 = []
               this.aMapLine.getPath().map((item) => {
                 line1.push([item.lng, item.lat])
               })
@@ -486,7 +486,7 @@ export default {
                 line2.push([item.lng, item.lat])
               })
 
-              let intersectPoint = lineIntersect(
+              const intersectPoint = lineIntersect(
                 lineString(line1),
                 lineString(line2)
               )
@@ -496,7 +496,7 @@ export default {
                 intersectPoint.features.map((item) => {
                   this.intersectPointMarker.push(
                     this.gaodeMap.addMarker({
-                      position: item.geometry.coordinates,
+                      position: item.geometry.coordinates
                     })
                   )
                 })
@@ -533,8 +533,8 @@ export default {
 
             // 进行切割
             if (this.aMapLine) {
-              let line1 = [],
-                line2 = []
+              const line1 = []
+              const line2 = []
               this.aMapLine.getPath().map((item) => {
                 line1.push([item.lng, item.lat])
               })
@@ -542,7 +542,7 @@ export default {
                 line2.push([item.lng, item.lat])
               })
 
-              let split = lineSplit(lineString(line1), lineString(line2))
+              const split = lineSplit(lineString(line1), lineString(line2))
               // debugger
               // console.log('split', split)
               split.features &&
@@ -551,7 +551,7 @@ export default {
                     this.gaodeMap.drawLine({
                       path: item.geometry.coordinates,
                       strokeColor: randomColor2(),
-                      strokeWeight: 3,
+                      strokeWeight: 3
                     })
                   )
                 })
@@ -561,8 +561,8 @@ export default {
           }
         )
       }
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -1,8 +1,8 @@
 /*
  * @Author: ZHT
  * @Date: 2020-01-16 15:24:35
- * @Last Modified by:   ZHT
- * @Last Modified time: 2020-01-16 15:24:35
+ * @Last Modified by: ZHT
+ * @Last Modified time: 2020-08-19 09:39:56
  */
 
 /*
@@ -18,7 +18,7 @@ const POLYLINE_STYLE = {
   strokeStyle: 'solid'
 }
 
-class aMap {
+class GaodeMap {
   constructor(container) {
     this.container = container
     this.baseMap = null
@@ -88,4 +88,4 @@ class aMap {
   }
 }
 
-export default aMap
+export default GaodeMap
