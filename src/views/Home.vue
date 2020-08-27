@@ -93,22 +93,22 @@ export default {
       mapList: [
         {
           label: '高德地图',
-          value: 1
+          value: 'gaode'
         },
         {
           label: '百度地图',
-          value: 2
+          value: 'baidu'
         },
         {
           label: '天地图',
-          value: 3
+          value: 'tianditu'
         }
         // {
         //   label: 'AntV L7',
         //   value: 4,
         // },
       ],
-      selectedMap: 3,
+      selectedMap: 'tianditu',
       aMapBox: null,
       bMapBox: null,
       tMapBox: null,
@@ -166,7 +166,7 @@ export default {
     }
   },
   mounted() {
-    if (this.selectedMap === 2) {
+    if (this.selectedMap === 'baidu') {
       this.baiduMap = new BaiduMap(this.bMapContainerId)
     }
     this.tiandituMap = new TiandiMap(this.tMapContainerId)
@@ -177,24 +177,27 @@ export default {
     this.tMapBox = document.getElementById(this.tMapContainerId)
     // this.l7MapBox = document.getElementById(this.l7MapContainerId)
   },
+  beforeDestroy() {
+    this.mapClickEvent && this.gaodeMap.event.removeListener(this.mapClickEvent)
+  },
   methods: {
     // 切换地图时，调取拾取坐标按钮事件，重置对应地图拾取状态
     mapChange(value) {
       // 为了使百度地图的容器第一次显示时再初始化，做了几个地图的容器显示的调整，用了原生 JS 控制
       switch (value) {
-        case 1:
+        case 'gaode':
           this.aMapBox.style.display = 'block'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'none'
           // this.l7MapBox.style.display = 'none'
           break
-        case 2:
+        case 'baidu':
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'block'
           this.tMapBox.style.display = 'none'
           // this.l7MapBox.style.display = 'none'
           break
-        case 3:
+        case 'tianditu':
           this.aMapBox.style.display = 'none'
           this.bMapBox.style.display = 'none'
           this.tMapBox.style.display = 'block'
@@ -211,7 +214,7 @@ export default {
         default:
           break
       }
-      if (!this.baiduMap && this.selectedMap === 2) {
+      if (!this.baiduMap && this.selectedMap === 'baidu') {
         this.baiduMap = new BaiduMap(this.bMapContainerId)
       }
       this.getCoordBtn(false)
@@ -224,35 +227,33 @@ export default {
         this.isGetCoord = !this.isGetCoord
       }
       if (this.isGetCoord) {
-        if (this.selectedMap === 1) {
+        if (this.selectedMap === 'gaode') {
           this.gaodeMap.baseMap.setDefaultCursor('crosshair')
           this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
             this.gaodeMap.baseMap,
             'click',
             this.TDTAndGgaodeGetCoord
           )
-        } else if (this.selectedMap === 2) {
+        } else if (this.selectedMap === 'baidu') {
           this.baiduMap.baseMap.setDefaultCursor('crosshair')
           this.baiduMap.baseMap.addEventListener('click', this.baiduGetCoord)
-        } else if (this.selectedMap === 3) {
-          const tiandituBox = document.getElementById(this.tMapContainerId)
-          tiandituBox.style.cursor = 'crosshair'
+        } else if (this.selectedMap === 'tianditu') {
+          this.tMapBox.style.cursor = 'crosshair'
           this.tiandituMap.baseMap.addEventListener(
             'click',
             this.TDTAndGgaodeGetCoord
           )
         }
       } else {
-        if (this.selectedMap === 1) {
+        if (this.selectedMap === 'gaode') {
           this.gaodeMap.baseMap.setDefaultCursor('grab')
           this.mapClickEvent &&
             this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
-        } else if (this.selectedMap === 2) {
+        } else if (this.selectedMap === 'baidu') {
           this.baiduMap.baseMap.setDefaultCursor('grab')
           this.baiduMap.baseMap.removeEventListener('click', this.baiduGetCoord)
-        } else if (this.selectedMap === 3) {
-          const tiandituBox = document.getElementById(this.tMapContainerId)
-          tiandituBox.style.cursor = 'grab'
+        } else if (this.selectedMap === 'tianditu') {
+          this.tMapBox.style.cursor = 'grab'
           this.tiandituMap.baseMap.removeEventListener(
             'click',
             this.TDTAndGgaodeGetCoord
@@ -365,20 +366,25 @@ export default {
         this.polylineDataStr = ''
         this.polylineData = []
 
-        if (this.selectedMap === 1) {
+        if (this.selectedMap === 'gaode') {
           this.gaodeMap.baseMap.setDefaultCursor('crosshair')
+          this.gaodeMap.drawPolyline({ strokeColor: '#336699', strokeWeight: 4 })
           this.mapClickEvent = this.gaodeMap.amapApi.event.addListener(
-            this.gaodeMap.baseMap,
-            'click',
-            this.getPolylineData
+            this.gaodeMap.mouseTool,
+            'draw',
+            event => {
+              this.polylineData && this.gaodeMap.baseMap.remove(this.polylineData)
+              this.polylineData = event.obj
+              this.polylineDataStr = JSON.stringify(this.polylineData.getPath(), null, 4)
+            }
           )
-        } else if (this.selectedMap === 2) {
+        } else if (this.selectedMap === 'baidu') {
           this.baiduMap.baseMap.setDefaultCursor('crosshair')
           this.baiduMap.baseMap.addEventListener(
             'click',
             this.getBaiduPolylineData
           )
-        } else if (this.selectedMap === 3) {
+        } else if (this.selectedMap === 'tianditu') {
           const tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'crosshair'
           this.tiandituMap.baseMap.addEventListener(
@@ -387,17 +393,17 @@ export default {
           )
         }
       } else {
-        if (this.selectedMap === 1) {
+        if (this.selectedMap === 'gaode') {
           this.gaodeMap.baseMap.setDefaultCursor('grab')
           this.mapClickEvent &&
             this.gaodeMap.amapApi.event.removeListener(this.mapClickEvent)
-        } else if (this.selectedMap === 2) {
+        } else if (this.selectedMap === 'baidu') {
           this.baiduMap.baseMap.setDefaultCursor('grab')
           this.baiduMap.baseMap.removeEventListener(
             'click',
             this.getBaiduPolylineData
           )
-        } else if (this.selectedMap === 3) {
+        } else if (this.selectedMap === 'tianditu') {
           const tiandituBox = document.getElementById(this.tMapContainerId)
           tiandituBox.style.cursor = 'grab'
           this.tiandituMap.baseMap.removeEventListener(
@@ -407,6 +413,7 @@ export default {
         }
       }
     },
+
     // 天地图和高德地图，画线点击事件，拼接坐标
     getPolylineData(e) {
       this.polylineData.push({

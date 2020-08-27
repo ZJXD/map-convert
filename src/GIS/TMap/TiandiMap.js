@@ -37,7 +37,7 @@ class TiandiMap {
     this.baseMap = new T.Map(this.container, {
       // projection: 'EPSG:4326'
     })
-    const point = new T.LngLat(120.189705, 30.309652)
+    const point = new T.LngLat(window.$setting.center[0], window.$setting.center[1])
     this.baseMap.centerAndZoom(point, 14)
     this.baseMap.checkResize()
   }

@@ -24,4 +24,12 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
+/* 隐藏地图标识 */
+.anchorBL,
+.amap-logo,
+.amap-copyright,
+.tdt-control-copyright {
+  display: none !important;
+}
 </style>
