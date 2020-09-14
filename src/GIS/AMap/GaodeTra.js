@@ -1,9 +1,12 @@
 /*
  * @Author: ZHT
  * @Date: 2020-08-19 13:58:54
- * @Last Modified by:   ZHT
- * @Last Modified time: 2020-08-19 13:58:54
+ * @Last Modified by: ZHT
+ * @Last Modified time: 2020-09-14 09:49:40
  */
+
+// 高德地图中 Marker 自带 moving 事件，该事件是在 Marker 在执行 moveTo，moveAlong 动画时触发
+// 基于上面：1、先注册 moving 事件，播放时执行 moveAlong，播放动画
 
 import AMap from 'AMap'
 import transCoords from '@/utils/transCoords'
@@ -34,7 +37,7 @@ import defaultImg from '@/assets/images/trajectory_person.png'
 /**
  * 轨迹回放类
  */
-class Trajectory {
+class GaodeTra {
   constructor(map) {
     this.map = map
     this.lineArr = []
@@ -187,4 +190,4 @@ class Trajectory {
   }
 }
 
-export default Trajectory
+export default GaodeTra
