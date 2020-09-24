@@ -14,7 +14,7 @@ class BaiduMap {
   }
 
   initMap() {
-    const center = transCoords.WGS84toGCJ02(window.$setting.center[0], window.$setting.center[1])
+    const center = transCoords.WGS84toBD09(window.$setting.center[0], window.$setting.center[1])
     // 初始化地图
     this.baseMap = new BMap.Map(this.container)
     this.baseMap.centerAndZoom(new BMap.Point(center[0], center[1]), 15)

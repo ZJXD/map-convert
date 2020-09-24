@@ -2,7 +2,7 @@
  * @Author: ZHT
  * @Date: 2020-01-16 15:24:35
  * @Last Modified by: ZHT
- * @Last Modified time: 2020-08-21 15:31:12
+ * @Last Modified time: 2020-09-24 17:24:53
  */
 
 /*
@@ -30,7 +30,7 @@ class GaodeMap {
   }
 
   async initMap() {
-    const center = transCoords.WGS84toBD09(window.$setting.center[0], window.$setting.center[1])
+    const center = transCoords.WGS84toGCJ02(window.$setting.center[0], window.$setting.center[1])
     // 初始化地图
     this.baseMap = new AMap.Map(this.container, {
       center: center,

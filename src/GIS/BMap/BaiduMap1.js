@@ -1,8 +1,8 @@
 /*
  * @Author: ZHT
  * @Date: 2020-09-16 09:52:16
- * @Last Modified by:   ZHT
- * @Last Modified time: 2020-09-16 09:52:16
+ * @Last Modified by: ZHT
+ * @Last Modified time: 2020-09-24 17:26:49
  */
 
 /**
@@ -13,6 +13,7 @@ import { GetGridList, GetBranchDetail } from '@/modules/grid/api/index'
 import transCoords from '@/utils/gps'
 import { getColorByIndex } from '@/utils/color'
 import gridImg from '@/modules/grid/images/community/grid.png'
+import gridActiveImg from '@/modules/grid/images/community/grid-active.png'
 
 const POLYGON_STYLES = {
   1: {
@@ -37,6 +38,8 @@ const BOUNDARY = [
   { lat: 59.0, lng: 73.0 }
 ]
 
+const CITY_NAME = '呼和浩特市赛罕区'
+
 class BaiduMap {
   constructor(container, center, showGrid = true) {
     this.container = container
@@ -48,7 +51,10 @@ class BaiduMap {
     this.curGridTypes = []
     this.showGrid = showGrid
     this.gridIcon = null
+    this.gridActiveIcon = null
+    this.curGridMark = null
     this.coverPolygon = null
+    this.boundaryPoints = []
     this.initMap()
   }
 
@@ -56,12 +62,8 @@ class BaiduMap {
     // const center = transCoords.WGS84toBD09(window.$setting.center[0], window.$setting.center[1])
     // 初始化地图
     this.baseMap = new BMap.Map(this.container, { enableMapClick: false })
-    // this.baseMap.centerAndZoom(new BMap.Point(center[0], center[1]), 15)
-    // this.baseMap.centerAndZoom('呼和浩特市')
-    // let point = new BMap.Point(120.20085967, 30.31299727)
-    // this.baseMap.centerAndZoom(point, 15)
     this.baseMap.setMaxZoom(20)
-    this.baseMap.setMinZoom(10)
+    this.baseMap.setMinZoom(11)
     this.baseMap.enableScrollWheelZoom(true)
     this.baseMap.setDefaultCursor('grab')
     const opts = {
@@ -70,12 +72,13 @@ class BaiduMap {
       // title: '海底捞王府井店', // 信息窗口标题
       enableMessage: true, // 设置允许信息窗发送短息
       enableCloseOnClick: false,
-      message: '亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~'
+      message: '内容'
     }
-    this.infoWindow = new BMap.InfoWindow('地址：北京市东城区王府井大街88号乐天银泰百货八层', opts)
+    this.infoWindow = new BMap.InfoWindow('内容', opts)
 
     if (this.showGrid) {
       this.gridIcon = new BMap.Icon(gridImg, new BMap.Size(34, 45))
+      this.gridActiveIcon = new BMap.Icon(gridActiveImg, new BMap.Size(34, 45))
       this.getGridPolygons()
 
       this.baseMap.addEventListener('zoomend', () => {
@@ -89,15 +92,17 @@ class BaiduMap {
         }
       })
     } else {
-      this.getBoundary()
+      this.getBoundary(CITY_NAME)
     }
   }
 
-  boundaryPoints = []
-  getBoundary() {
+  // 获取行政边界
+  getBoundary(cityName) {
     const bdary = new BMap.Boundary()
-    bdary.get('呼和浩特市赛罕区', (rs) => { // 获取行政区域
-      const count = rs.boundaries.length // 行政区域的点有多少个
+    // 获取行政区域
+    bdary.get(cityName, (rs) => {
+      // 行政区域的点有多少个
+      const count = rs.boundaries.length
       if (count === 0) {
         alert('未能获取当前输入行政区域')
         return
@@ -107,18 +112,25 @@ class BaiduMap {
         const ply = new BMap.Polygon(rs.boundaries[i], {
           strokeWeight: 5, strokeColor: 'rgba(13, 101, 251, 1)', fillColor: 'rgba(13, 101, 251, 0.4)', strokeStyle: 'dashed',
           strokeDasharray: [5, 5], fillOpacity: 0.2
-        }) // 建立多边形覆盖物
-        this.baseMap.addOverlay(ply) // 添加覆盖物
+        })
+        this.baseMap.addOverlay(ply)
         this.boundaryPoints = this.boundaryPoints.concat(ply.getPath())
       }
 
-      if (this.center) {
-        const point = new BMap.Point(this.center[0], this.center[1])
-        this.baseMap.centerAndZoom(point, 14)
-      } else {
-        this.baseMap.setViewport(this.boundaryPoints) // 调整视野
-      }
+      this.setBoundView()
     })
+  }
+
+  /**
+   * 设置视野，初始化、重置视野等
+   */
+  setBoundView() {
+    if (this.center) {
+      const point = new BMap.Point(this.center[0], this.center[1])
+      this.baseMap.centerAndZoom(point, 14)
+    } else {
+      this.baseMap.setViewport(this.boundaryPoints) // 调整视野
+    }
   }
 
   showGridInfo(branchId) {
@@ -133,17 +145,30 @@ class BaiduMap {
           <span>事件数量：${response.data.eventCount}</span>
         </div>
         </div>`
-      const point = this.gridPolygons[branchId].center || this.highlightPolygon.getPath()[0]
-      this.infoWindowSetContent(info, point)
+
+      const grid = this.gridPolygons[branchId]
+      if (grid) {
+        switch (grid.type) {
+          case 2:
+            this.infoWindowSetContent(info, grid.center, 16)
+            break
+          case 3:
+            this.infoWindowSetContent(info, grid.center, 18)
+            break
+
+          default:
+            break
+        }
+      } else {
+        this.$message.warning('当前网格无中心点！')
+      }
     })
   }
 
-  branchList = {}
   getGridPolygons() {
     GetGridList({ page: 1, pageSize: 1000 }).then(response => {
       if (response.data && response.data.length > 0) {
         response.data.map((item, index) => {
-          this.branchList[item.branchId] = item.branchName
           const location = JSON.parse(item.location)
           const path = []
           location.map(point => {
@@ -170,9 +195,9 @@ class BaiduMap {
             color
           }
         })
-      }
 
-      this.getBoundary()
+        this.getBoundary(CITY_NAME)
+      }
     })
   }
 
@@ -198,6 +223,13 @@ class BaiduMap {
 
   handleCoverPolygon(branchId) {
     const curBranch = this.gridPolygons[branchId]
+
+    // marker 高亮
+    const marker = curBranch.marker
+    marker.setIcon(this.gridActiveIcon)
+    this.curGridMark && this.curGridMark.setIcon(this.gridIcon)
+    this.curGridMark = marker
+
     if (curBranch.type !== 1) {
       return
     }
@@ -215,34 +247,27 @@ class BaiduMap {
     this.baseMap.setViewport(pathT) // 调整视野到当前街道
   }
 
-  highlightPolygon = null
-  curHighlightColor = null
   /**
    * 高亮显示街道、社区、网格
    * @param {string} branchId 标识
    * @param {string} type 类型
    */
-  highlightGrid(branchId, type) {
+  highlightGrid(branchId) {
     this.showGridInfo(branchId)
     this.handleCoverPolygon(branchId)
-    // this.unHighlightGrid()
-    // this.highlightPolygon = null
-    // if (this.gridPolygons[branchId]) {
-    //   this.curHighlightColor = this.gridPolygons[branchId].color
-    //   this.highlightPolygon = this.gridPolygons[branchId].polygon
-    //   this.highlightPolygon.setFillColor('rgba(255,198,42,0.25)')
-    //   this.baseMap.setViewport(this.highlightPolygon.getPath())
-    //   setTimeout(() => {
-    //     type === 'street' ? this.baseMap.setZoom(15) : (type === 'community' ? this.baseMap.setZoom(17) : '')
-    //   }, 10)
-
-    //   this.showGridInfo(branchId)
-    // }
   }
-  unHighlightGrid() {
-    if (this.highlightPolygon) {
-      this.highlightPolygon.setFillColor(this.curHighlightColor)
+
+  // 清除地图上网格相关要素
+  clearGridInfo() {
+    if (this.coverPolygon) {
+      this.baseMap.removeOverlay(this.coverPolygon)
+      this.coverPolygon = null
     }
+    if (this.curGridMark) {
+      this.curGridMark.setIcon(this.gridIcon)
+      this.curGridMark = null
+    }
+    this.baseMap.closeInfoWindow()
   }
 
   /**
@@ -253,6 +278,16 @@ class BaiduMap {
     const pointT = new BMap.Point(point[0], point[1])
     const marker = new BMap.Marker(pointT, options)
     this.baseMap.addOverlay(marker)
+    return marker
+  }
+
+  /**
+   * 初始化标注，不添加到地图
+   * @param {Object} options 参数
+   */
+  getMarker(point, options) {
+    const pointT = new BMap.Point(point[0], point[1])
+    const marker = new BMap.Marker(pointT, options)
     return marker
   }
 
@@ -296,12 +331,12 @@ class BaiduMap {
   /**
    * 设置InfoWindow内容及坐标
    */
-  infoWindowSetContent(conten, point) {
-    this.infoWindow.setContent(conten)
+  infoWindowSetContent(content, point, zoom = 16) {
+    this.infoWindow.setContent(content)
     const pointM = Array.isArray(point) ? new this.bmapApi.Point(point[0], point[1]) : point
     this.baseMap.openInfoWindow(this.infoWindow, pointM)
-    this.baseMap.panTo(pointM)
-    // this.baseMap.centerAndZoom(pointM, 17)
+    // this.baseMap.panTo(pointM)
+    this.baseMap.centerAndZoom(pointM, zoom)
   }
 }
 

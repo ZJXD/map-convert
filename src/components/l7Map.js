@@ -19,7 +19,7 @@ class l7Map {
       mapStyle: 'dark', // 样式URL
       center: [102.602992, 23.107329],
       pitch: 15,
-      zoom: 13.82,
+      zoom: 13.82
     })
     // 初始化地图，添加线图层
     fetch('https://gw.alipayobjects.com/os/rmsportal/oVTMqfzuuRFKiDwhPSFL.json')
@@ -30,8 +30,8 @@ class l7Map {
             parser: {
               type: 'json',
               x: 'j',
-              y: 'w',
-            },
+              y: 'w'
+            }
           })
           .shape('cylinder')
           .size('t', function(level) {
@@ -47,10 +47,10 @@ class l7Map {
             '#5FD3A6',
             '#7BE39E',
             '#A1EDB8',
-            '#CEF8D6',
+            '#CEF8D6'
           ])
           .style({
-            opacity: 1.0,
+            opacity: 1.0
           })
         this.scene.addLayer(pointLayer)
       })
