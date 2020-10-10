@@ -2,7 +2,7 @@
  * @Author: ZHT
  * @Date: 2020-01-16 15:24:35
  * @Last Modified by: ZHT
- * @Last Modified time: 2020-09-24 17:24:53
+ * @Last Modified time: 2020-10-10 15:20:07
  */
 
 /*
@@ -10,6 +10,8 @@
  */
 
 import AMap from 'AMap'
+// import union from '@turf/union'
+// import { polygon } from '@turf/helpers'
 import transCoords from '../../utils/transCoords'
 
 const POLYLINE_STYLE = {
@@ -181,6 +183,24 @@ class GaodeMap {
   destroyMap() {
     this.mouseTool.close(true)
     this.baseMap && this.baseMap.destroy()
+  }
+
+  /**
+   * 使用 turf 合并面
+   */
+  unionPolygon() {
+    // let points = JSON.parse(Saihan[0].location)
+    // points.push(points[0])
+    // let firstPolygon = polygon([points])
+    // let unionPolygon = null
+    // for (let index = 1; index < Saihan.length; index++) {
+    //   points = JSON.parse(Saihan[index].location)
+    //   points.push(points[0])
+    //   const secondPolygon = polygon([points])
+    //   unionPolygon = union(firstPolygon, secondPolygon)
+    //   firstPolygon = unionPolygon
+    // }
+    // console.log(JSON.stringify(unionPolygon.geometry.coordinates))
   }
 }
 

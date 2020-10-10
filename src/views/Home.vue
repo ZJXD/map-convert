@@ -62,6 +62,12 @@
           切割线
         </button>
       </div>
+      <div class="oper-item">
+        <h3>合并面</h3>
+        <button class="button" @click="unionPolygon">
+          合并并打印
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -430,6 +436,11 @@ export default {
 
     // 高德地图画线
     drawPolyline() {
+      if (this.selectedMap !== 'gaode') {
+        this.$message.warning('当前功能仅限高德地图！')
+        return
+      }
+
       this.isDrawPolyline = !this.isDrawPolyline
       if (this.gaodeMap && this.isDrawPolyline) {
         if (this.aMapLine) {
@@ -461,6 +472,11 @@ export default {
 
     // 画交点线，计算交点
     sliceLine() {
+      if (this.selectedMap !== 'gaode') {
+        this.$message.warning('当前功能仅限高德地图！')
+        return
+      }
+
       this.isSliceline = !this.isSliceline
       if (this.gaodeMap && this.isSliceline) {
         if (this.aMapSliceLine) {
@@ -517,6 +533,10 @@ export default {
 
     // 切割线
     splitLine() {
+      if (this.selectedMap !== 'gaode') {
+        this.$message.warning('当前功能仅限高德地图！')
+        return
+      }
       this.isSplitLine = !this.isSplitLine
       if (this.gaodeMap && this.isSplitLine) {
         if (this.aMapSplitLine) {
@@ -568,7 +588,17 @@ export default {
           }
         )
       }
+    },
+
+    // 合并面数据
+    unionPolygon() {
+      if (this.selectedMap === 'gaode') {
+        this.gaodeMap.unionPolygon()
+      } else {
+        this.$message.warning('当前功能仅限高德地图')
+      }
     }
+
   }
 }
 </script>
@@ -581,10 +611,6 @@ export default {
   flex-direction: row;
   font-size: 12px;
   position: relative;
-
-  button {
-    cursor: pointer;
-  }
 
   .map-box {
     width: 85%;
@@ -653,6 +679,11 @@ export default {
       border: 1px solid;
       border-radius: 3px;
       margin: 0 10px 10px 0;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #409eff;
+      }
 
       &:focus {
         outline: none;

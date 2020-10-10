@@ -13,6 +13,7 @@
     "@turf/line-intersect": "^6.0.2",
     "@turf/line-slice": "^5.1.5",
     "@turf/line-split": "^5.1.5",
+    "@turf/union": "^6.0.3",
     "core-js": "^2.6.5",
     "element-ui": "^2.13.1",
     "vue": "^2.6.10",
