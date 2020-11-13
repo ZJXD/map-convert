@@ -2,13 +2,14 @@
  * @Author: ZHT
  * @Date: 2020-09-24 15:48:48
  * @Last Modified by: ZHT
- * @Last Modified time: 2020-09-24 16:04:49
+ * @Last Modified time: 2020-11-13 17:06:58
  */
 
 // 修改参考自：https://www.cnblogs.com/lightnull/p/6184867.html
 
 /**
- * @fileoverview MarkerClusterer标记聚合器用来解决加载大量点要素到地图上产生覆盖现象的问题，并提高性能。
+ * MarkerClusterer
+ * 标记聚合器用来解决加载大量点要素到地图上产生覆盖现象的问题，并提高性能。
  * 主入口类是<a href="symbols/BMapLib.MarkerClusterer.html">MarkerClusterer</a>，
  * 基于Baidu Map API 1.2。
  *

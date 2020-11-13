@@ -2,7 +2,7 @@
  * @Author: ZHT
  * @Date: 2020-01-16 15:24:35
  * @Last Modified by: ZHT
- * @Last Modified time: 2020-10-10 15:20:07
+ * @Last Modified time: 2020-11-13 17:14:37
  */
 
 /*
@@ -49,6 +49,14 @@ class GaodeMap {
    */
   initMouseTool() {
     this.mouseTool = new AMap.MouseTool(this.baseMap)
+  }
+
+  /**
+   * 初始化 PolygonEditor 工具类
+   * V2.0 后可使用
+   */
+  initPolygonEditor() {
+    this.polygonEditor = new AMap.PolygonEditor(this.baseMap)
   }
 
   /**

@@ -33,7 +33,7 @@
             <el-input v-model="inputY" placeholder="请输入Y坐标" size="mini" />
           </el-form-item>
           <el-form-item label="OutputXY">
-            <label class="text">{{ outputXY }}</label>
+            <label>{{ outputXY }}</label>
           </el-form-item>
           <el-form-item>
             <button class="button" @click="convertCoord">
@@ -127,27 +127,27 @@ export default {
       convertOptions: [
         {
           label: 'WGS转高德',
-          value: 1
+          value: 'WGS84toGCJ02'
         },
         {
           label: '百度转高德',
-          value: 2
+          value: 'BD09toGCJ02'
         },
         {
           label: '高德转百度',
-          value: 3
+          value: 'GCJ02toBD09'
         },
         {
           label: '高德转WGS',
-          value: 4
+          value: 'GCJ02toWGS84'
         },
         {
           label: '百度转WGS',
-          value: 5
+          value: 'BD09toWGS84'
         },
         {
           label: 'WGS转百度',
-          value: 6
+          value: 'WGS84toBD09'
         }
       ],
       selectedConvert: null,
@@ -321,30 +321,7 @@ export default {
       }
 
       // 转换坐标
-      let temp = []
-      switch (this.selectedConvert) {
-        case 1:
-          temp = Convert.WGS84toGCJ02(x, y)
-          break
-        case 2:
-          temp = Convert.BD09toGCJ02(x, y)
-          break
-        case 3:
-          temp = Convert.GCJ02toBD09(x, y)
-          break
-        case 4:
-          temp = Convert.GCJ02toWGS84(x, y)
-          break
-        case 5:
-          temp = Convert.BD09toWGS84(x, y)
-          break
-        case 6:
-          temp = Convert.WGS84toBD09(x, y)
-          break
-
-        default:
-          break
-      }
+      const temp = Convert[this.selectedConvert](x, y)
       this.outputXY = temp[0].toFixed(6) + ',' + temp[1].toFixed(6)
 
       // 输出点标注
