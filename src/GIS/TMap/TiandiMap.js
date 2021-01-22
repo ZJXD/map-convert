@@ -12,7 +12,7 @@ class TiandiMap {
     this.initMap()
   }
 
-  // 初始化天地图API
+  // 初始化天地图 API，自动添加 Script 标签
   initT() {
     const AK = '07d4e04324b413cb0582fa99fe833cd3'
     const TMapURL = 'http://api.tianditu.gov.cn/api?v=4.0&tk=' + AK
