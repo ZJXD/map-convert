@@ -2,7 +2,7 @@
  * @Author: ZHT
  * @Date: 2020-01-16 15:24:35
  * @Last Modified by: ZHT
- * @Last Modified time: 2020-11-13 17:14:37
+ * @Last Modified time: 2021-03-24 14:22:49
  */
 
 /*
@@ -41,6 +41,51 @@ class GaodeMap {
       resizeEnable: true,
       expandZoomRange: true,
       defaultCursor: 'grab'
+      // mapStyle: 'amap://styles/ac5f0a95b8de110094e73ab1a170448c'
+    })
+
+    // this.baseMap.addControl(new AMap.MapType())
+    // this.baseMap.addControl(new AMap.MapType({
+    //   defaultType: 0, // 0代表默认，1代表卫星
+    //   showTraffic: false
+    // }))
+  }
+
+  boundsPolygon = null
+  drawBounds() {
+    // 加载行政区划插件
+    if (!this.district) {
+      // 实例化DistrictSearch
+      var opts = {
+        subdistrict: 0, // 获取边界不需要返回下级行政区
+        extensions: 'all', // 返回行政区边界坐标组等具体信息
+        level: 'province' // 查询行政级别为 市
+      }
+      this.district = new AMap.DistrictSearch(opts)
+    }
+
+    // 行政区查询
+    this.district.setLevel('龙泉市')
+    this.district.search('龙泉市', (status, result) => {
+      this.boundsPolygon && this.baseMap.remove(this.boundsPolygon)// 清除上次结果
+      this.boundsPolygon = []
+      var bounds = result.districtList[0].boundaries
+      if (bounds) {
+        for (var i = 0, l = bounds.length; i < l; i++) {
+          // 生成行政区划polygon
+          var polygon = new AMap.Polygon({
+            strokeStyle: 'dashed',
+            strokeWeight: 3,
+            path: bounds[i],
+            fillOpacity: 0,
+            fillColor: '#000',
+            strokeColor: '#f00'
+          })
+          this.boundsPolygon.push(polygon)
+        }
+      }
+      this.baseMap.add(this.boundsPolygon)
+      // this.baseMap.setFitView(this.boundsPolygon)// 视口自适应
     })
   }
 
