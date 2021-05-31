@@ -4,10 +4,10 @@
  */
 
 // 定义一些常量
-var xPI = (3.14159265358979324 * 3000.0) / 180.0
-var PI = 3.1415926535897932384626
-var a = 6378245.0
-var ee = 0.00669342162296594323
+const xPI = (3.14159265358979324 * 3000.0) / 180.0
+const PI = 3.1415926535897932384626
+const a = 6378245.0
+const ee = 0.00669342162296594323
 
 /**
  * 百度坐标系 (BD-09) 与 火星坐标系 (GCJ-02)的转换
@@ -17,12 +17,12 @@ var ee = 0.00669342162296594323
  * @returns {*[]}
  */
 function bd09togcj02(bdLon, bdLat) {
-  var x = bdLon - 0.0065
-  var y = bdLat - 0.006
-  var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * xPI)
-  var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * xPI)
-  var ggLng = z * Math.cos(theta)
-  var ggLat = z * Math.sin(theta)
+  const x = bdLon - 0.0065
+  const y = bdLat - 0.006
+  const z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * xPI)
+  const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * xPI)
+  const ggLng = z * Math.cos(theta)
+  const ggLat = z * Math.sin(theta)
   return [ggLng, ggLat]
 }
 
@@ -34,10 +34,10 @@ function bd09togcj02(bdLon, bdLat) {
  * @returns {*[]}
  */
 function gcj02tobd09(lng, lat) {
-  var z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * xPI)
-  var theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * xPI)
-  var bdLng = z * Math.cos(theta) + 0.0065
-  var bdLat = z * Math.sin(theta) + 0.006
+  const z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * xPI)
+  const theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * xPI)
+  const bdLng = z * Math.cos(theta) + 0.0065
+  const bdLat = z * Math.sin(theta) + 0.006
   return [bdLng, bdLat]
 }
 
@@ -51,16 +51,16 @@ function wgs84togcj02(lng, lat) {
   if (outOfChina(lng, lat)) {
     return [lng, lat]
   } else {
-    var dlat = transformlat(lng - 105.0, lat - 35.0)
-    var dlng = transformlng(lng - 105.0, lat - 35.0)
-    var radlat = (lat / 180.0) * PI
-    var magic = Math.sin(radlat)
+    let dlat = transformlat(lng - 105.0, lat - 35.0)
+    let dlng = transformlng(lng - 105.0, lat - 35.0)
+    const radlat = (lat / 180.0) * PI
+    let magic = Math.sin(radlat)
     magic = 1 - ee * magic * magic
-    var sqrtmagic = Math.sqrt(magic)
+    const sqrtmagic = Math.sqrt(magic)
     dlat = (dlat * 180.0) / (((a * (1 - ee)) / (magic * sqrtmagic)) * PI)
     dlng = (dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * PI)
-    var mglat = lat + dlat
-    var mglng = lng + dlng
+    const mglat = lat + dlat
+    const mglng = lng + dlng
     return [mglng, mglat]
   }
 }
@@ -75,16 +75,16 @@ function gcj02towgs84(lng, lat) {
   if (outOfChina(lng, lat)) {
     return [lng, lat]
   } else {
-    var dlat = transformlat(lng - 105.0, lat - 35.0)
-    var dlng = transformlng(lng - 105.0, lat - 35.0)
-    var radlat = (lat / 180.0) * PI
-    var magic = Math.sin(radlat)
+    let dlat = transformlat(lng - 105.0, lat - 35.0)
+    let dlng = transformlng(lng - 105.0, lat - 35.0)
+    const radlat = (lat / 180.0) * PI
+    let magic = Math.sin(radlat)
     magic = 1 - ee * magic * magic
-    var sqrtmagic = Math.sqrt(magic)
+    const sqrtmagic = Math.sqrt(magic)
     dlat = (dlat * 180.0) / (((a * (1 - ee)) / (magic * sqrtmagic)) * PI)
     dlng = (dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * PI)
-    var mglat = lat + dlat
-    var mglng = lng + dlng
+    const mglat = lat + dlat
+    const mglng = lng + dlng
     return [lng * 2 - mglng, lat * 2 - mglat]
   }
 }
@@ -99,8 +99,8 @@ function bd09towgs84(bdlng, bdlat) {
   if (outOfChina(bdlng, bdlat)) {
     return [bdlng, bdlat]
   } else {
-    var gcj = bd09togcj02(bdlng, bdlat)
-    var wgs = gcj02towgs84(gcj[0], gcj[1])
+    const gcj = bd09togcj02(bdlng, bdlat)
+    const wgs = gcj02towgs84(gcj[0], gcj[1])
     return wgs
   }
 }
@@ -115,14 +115,14 @@ function wgs84tobd09(lng, lat) {
   if (outOfChina(lng, lat)) {
     return [lng, lat]
   } else {
-    var gcj = wgs84togcj02(lng, lat)
-    var bd = gcj02tobd09(gcj[0], gcj[1])
+    const gcj = wgs84togcj02(lng, lat)
+    const bd = gcj02tobd09(gcj[0], gcj[1])
     return bd
   }
 }
 
 function transformlat(lng, lat) {
-  var ret =
+  let ret =
     -100.0 +
     2.0 * lng +
     3.0 * lat +
@@ -144,7 +144,7 @@ function transformlat(lng, lat) {
 }
 
 function transformlng(lng, lat) {
-  var ret =
+  let ret =
     300.0 +
     lng +
     2.0 * lat +
