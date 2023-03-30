@@ -1,8 +1,8 @@
 <template>
   <div class="map-page">
-    <div :id="aMapContainerId" class="map-box" />
+    <div :id="aMapContainerId" class="map-box" style="display:block;" />
     <div :id="bMapContainerId" class="map-box" />
-    <div :id="tMapContainerId" class="map-box" style="display:block;" />
+    <div :id="tMapContainerId" class="map-box" />
     <!-- <div :id="l7MapContainerId" class="map-box"></div> -->
     <el-select v-model="selectedMap" placeholder="请选择底图" size="mini" class="map-select" @change="mapChange">
       <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value" />
@@ -114,7 +114,7 @@ export default {
         //   value: 4,
         // },
       ],
-      selectedMap: 'tianditu',
+      selectedMap: 'gaode',
       aMapBox: null,
       bMapBox: null,
       tMapBox: null,

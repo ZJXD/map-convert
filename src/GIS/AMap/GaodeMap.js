@@ -2,7 +2,7 @@
  * @Author: ZHT
  * @Date: 2020-01-16 15:24:35
  * @Last Modified by: ZHT
- * @Last Modified time: 2021-03-24 14:22:49
+ * @Last Modified time: 2022-09-21 13:34:21
  */
 
 /*
@@ -13,6 +13,7 @@ import AMap from 'AMap'
 // import union from '@turf/union'
 // import { polygon } from '@turf/helpers'
 import transCoords from '../../utils/transCoords'
+import { Message } from 'element-ui'
 
 const POLYLINE_STYLE = {
   strokeColor: '#3366FF',
@@ -22,22 +23,23 @@ const POLYLINE_STYLE = {
 }
 
 class GaodeMap {
-  constructor(container) {
+  constructor(container, center, zoom, zooms) {
     this.container = container
     this.baseMap = null
     this.amapApi = AMap
     this.mouseTool = null
-    this.initMap()
+    this.district = null
+    this.initMap(center, zoom, zooms)
     this.initMouseTool()
   }
 
-  async initMap() {
-    const center = transCoords.WGS84toGCJ02(window.$setting.center[0], window.$setting.center[1])
+  async initMap(center, zoom, zooms) {
+    const tempCenter = transCoords.WGS84toGCJ02(window.$setting.center[0], window.$setting.center[1])
     // 初始化地图
     this.baseMap = new AMap.Map(this.container, {
-      center: center,
-      zoom: 14,
-      zooms: [12, 20],
+      center: center || tempCenter,
+      zoom: zoom || 14,
+      zooms: zooms || [12, 20],
       resizeEnable: true,
       expandZoomRange: true,
       defaultCursor: 'grab'
@@ -52,7 +54,8 @@ class GaodeMap {
   }
 
   boundsPolygon = null
-  drawBounds() {
+  drawBounds(districtName = '杭州市') {
+    console.log(districtName)
     // 加载行政区划插件
     if (!this.district) {
       // 实例化DistrictSearch
@@ -65,27 +68,49 @@ class GaodeMap {
     }
 
     // 行政区查询
-    this.district.setLevel('龙泉市')
-    this.district.search('龙泉市', (status, result) => {
+    this.district.setLevel(districtName)
+    this.district.search(districtName, (status, result) => {
+      if (status === 'error' || status === 'no_data') {
+        Message({
+          message: status === 'error' ? result : '未查询到行政区划',
+          type: 'error'
+        })
+
+        return
+      }
+
       this.boundsPolygon && this.baseMap.remove(this.boundsPolygon)// 清除上次结果
       this.boundsPolygon = []
-      var bounds = result.districtList[0].boundaries
+      const bounds = result.districtList[0].boundaries
+      const boundsArr = []
       if (bounds) {
         for (var i = 0, l = bounds.length; i < l; i++) {
           // 生成行政区划polygon
           var polygon = new AMap.Polygon({
-            strokeStyle: 'dashed',
-            strokeWeight: 3,
             path: bounds[i],
-            fillOpacity: 0,
-            fillColor: '#000',
-            strokeColor: '#f00'
+            // fillOpacity: 0,
+            // fillColor: '#000',
+            // strokeColor: '#f00',
+            // strokeStyle: 'dashed',
+            // strokeWeight: 2
+            strokeWeight: 1,
+            strokeColor: '#0091ea',
+            fillColor: '#80d8ff',
+            fillOpacity: 0.2
           })
           this.boundsPolygon.push(polygon)
+
+          const tempCoord = []
+          bounds[i].map(coord => {
+            // tempCoord.push([coord.lng, coord.lat])
+            tempCoord.push(coord.pos)
+          })
+          boundsArr.push(tempCoord)
+          console.log(boundsArr)
         }
       }
       this.baseMap.add(this.boundsPolygon)
-      // this.baseMap.setFitView(this.boundsPolygon)// 视口自适应
+      this.baseMap.setFitView(this.boundsPolygon)// 视口自适应
     })
   }
 

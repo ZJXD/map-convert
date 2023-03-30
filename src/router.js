@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
+import Convert from './views/Convert.vue'
 
 Vue.use(Router)
 
@@ -9,7 +9,17 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: Home
+      redirect: '/convert'
+    },
+    {
+      path: '/convert',
+      name: 'convert',
+      component: Convert
+    },
+    {
+      path: '/district',
+      name: 'district',
+      component: () => import('./views/District.vue')
     },
     {
       path: '/about',
